@@ -22,6 +22,10 @@ def limpar_tela():
 
 def mostrar_principal():
     limpar_tela()
+    if usuario_logado[0]:
+        btn_deslogar_principal.pack(pady=10)
+    else:
+        btn_deslogar_principal.pack_forget()
     frame_inicio.pack(expand=True)
 
 def mostrar_login():
@@ -41,6 +45,11 @@ def mostrar_admin_menu():
     limpar_tela()
     frame_admin.pack(pady=20)
 
+def mostrar_carrinho():
+    limpar_tela()
+    frame_carrinho.pack(pady=20)
+    atualizar_carrinho()
+
 def entrar():
     usuario = usuario_entry.get()
     senha = senha_entry.get()
@@ -52,7 +61,7 @@ def entrar():
         else:
             mostrar_principal()
     else:
-        messagebox.showerror("Erro", "Credenciais inválidas.")
+        messagebox.showerror("Erro", "Usuário ou senha incorretos.")
 
 def cadastrar():
     usuario = entry_new_user.get()
@@ -68,15 +77,12 @@ def atualizar_jogos():
     for widget in frame_lista.winfo_children():
         widget.destroy()
     for jogo in jogos:
-        card = ctk.CTkFrame(frame_lista, fg_color="#2a2a44")
+        card = ctk.CTkFrame(frame_lista, fg_color="#2a2a44", corner_radius=8)
         card.pack(pady=5, padx=10, fill="x")
-
         nome_preco = f"{jogo['nome']} — R${jogo['preco']:.2f} | Estoque: {jogo['estoque']}"
         ctk.CTkLabel(card, text=nome_preco, font=("Roboto", 14)).pack(side="left", padx=10)
-
         btn_comprar = ctk.CTkButton(card, text="Comprar", width=80, command=lambda j=jogo: comprar(j))
         btn_comprar.pack(side="right", padx=5)
-
         btn_carrinho = ctk.CTkButton(card, text="Carrinho", width=80, command=lambda j=jogo: add_carrinho(j))
         btn_carrinho.pack(side="right")
 
@@ -98,24 +104,40 @@ def add_carrinho(jogo):
         carrinho.append(jogo)
         messagebox.showinfo("Carrinho", f"{jogo['nome']} adicionado!")
 
+def atualizar_carrinho():
+    for widget in frame_carrinho_lista.winfo_children():
+        widget.destroy()
+
+    if not carrinho:
+        ctk.CTkLabel(frame_carrinho_lista, text="Carrinho vazio.", font=("Roboto", 16)).pack(pady=10)
+    else:
+        for i, jogo in enumerate(carrinho):
+            card = ctk.CTkFrame(frame_carrinho_lista, fg_color="#2a2a44", corner_radius=8)
+            card.pack(pady=5, padx=10, fill="x")
+
+            nome_preco = f"{jogo['nome']} — R${jogo['preco']:.2f}"
+            ctk.CTkLabel(card, text=nome_preco, font=("Roboto", 14)).pack(side="left", padx=10)
+
+            btn_remover = ctk.CTkButton(card, text="Remover", width=80,
+                                        command=lambda idx=i: remover_carrinho(idx))
+            btn_remover.pack(side="right", padx=5)
+
+def remover_carrinho(index):
+    carrinho.pop(index)
+    atualizar_carrinho()
+
 def cadastrar_jogo():
     nome = entry_jnome.get()
     preco_texto = entry_jpreco.get()
     estoque_texto = entry_jestoque.get()
-
     try:
         preco = float(preco_texto)
         estoque = int(estoque_texto)
     except ValueError:
         messagebox.showerror("Erro", "Preço ou estoque inválido.")
         return
-
     jogos.append({"nome": nome, "preco": preco, "estoque": estoque})
     messagebox.showinfo("Adicionado", f"{nome} cadastrado com sucesso.")
-    atualizar_jogos()
-
-def excluir_jogo(jogo):
-    jogos.remove(jogo)
     atualizar_jogos()
 
 def ver_relatorios():
@@ -125,26 +147,41 @@ def ver_relatorios():
         texto = "Nenhuma venda ainda."
     messagebox.showinfo("Relatório de Vendas", texto)
 
+def deslogar():
+    usuario_logado[0] = None
+    messagebox.showinfo("Logout", "Você saiu da sua conta.")
+    mostrar_principal()
 
-# Tela inicial
+def sair():
+    janela.destroy()
+
+# Frames e widgets
+
 frame_inicio = ctk.CTkFrame(janela, fg_color="#2a2a3a", corner_radius=15)
-ctk.CTkLabel(frame_inicio, text="Bem-vindo à Loja de Jogos", font=("Roboto", 24, "bold")).pack(pady=20)
+ctk.CTkLabel(frame_inicio, text="Bem-vindo à Loja de Jogos", font=("Roboto", 28, "bold")).pack(pady=30)
 
 button_frame_inicio = ctk.CTkFrame(frame_inicio, fg_color="transparent")
-button_frame_inicio.pack(pady=10)
+button_frame_inicio.pack(pady=20)
 
-btn_ver_jogos = ctk.CTkButton(button_frame_inicio, text="Ver Jogos", width=200, height=40,
-font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6",
-command=mostrar_jogos)
+btn_ver_jogos = ctk.CTkButton(button_frame_inicio, text="Ver Jogos", width=220, height=45,
+                              font=("Roboto", 15), corner_radius=12, hover_color="#3b82f6",
+                              command=mostrar_jogos)
 btn_ver_jogos.pack(pady=10)
 
-btn_login_cadastro = ctk.CTkButton(button_frame_inicio, text="Login / Cadastro", width=200, height=40,
-font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6",
-command=mostrar_login)
+btn_login_cadastro = ctk.CTkButton(button_frame_inicio, text="Login / Cadastro", width=220, height=45,
+                                  font=("Roboto", 15), corner_radius=12, hover_color="#3b82f6",
+                                  command=mostrar_login)
 btn_login_cadastro.pack(pady=10)
 
+btn_deslogar_principal = ctk.CTkButton(button_frame_inicio, text="Deslogar", width=220, height=45,
+                                       font=("Roboto", 15), corner_radius=12, fg_color="#b83232",
+                                       hover_color="#ff4d4d", command=deslogar)
 
-# Tela de login
+btn_sair = ctk.CTkButton(frame_inicio, text="Sair", width=120, height=35,
+                         font=("Roboto", 14), corner_radius=10, fg_color="#b83232",
+                         hover_color="#ff4d4d", command=sair)
+btn_sair.pack(side="bottom", pady=15)
+
 frame_login = ctk.CTkFrame(janela, fg_color="#2a2a3a", corner_radius=15)
 
 ctk.CTkLabel(frame_login, text="Login", font=("Roboto", 24, "bold")).pack(pady=20)
@@ -164,19 +201,17 @@ button_frame_login = ctk.CTkFrame(frame_login, fg_color="transparent")
 button_frame_login.pack(pady=20)
 
 btn_entrar = ctk.CTkButton(button_frame_login, text="Entrar", command=entrar, width=150, height=40,
-font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
+                           font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
 btn_entrar.pack(side="left", padx=10)
 
 btn_cadastrar = ctk.CTkButton(button_frame_login, text="Cadastrar", command=mostrar_cadastro, width=150, height=40,
-font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
+                              font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
 btn_cadastrar.pack(side="left", padx=10)
 
 btn_voltar_login = ctk.CTkButton(button_frame_login, text="Voltar", command=mostrar_principal, width=150, height=40,
-font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
+                                 font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
 btn_voltar_login.pack(side="left", padx=10)
 
-
-# Tela de cadastro
 frame_cadastro = ctk.CTkFrame(janela, fg_color="#2a2a3a", corner_radius=15)
 
 ctk.CTkLabel(frame_cadastro, text="Cadastro", font=("Roboto", 24, "bold")).pack(pady=20)
@@ -189,52 +224,51 @@ entry_new_user = ctk.CTkEntry(cadastro_frame, placeholder_text="Digite seu usern
 entry_new_user.pack(pady=5)
 
 ctk.CTkLabel(cadastro_frame, text="Senha", font=("Roboto", 14)).pack(pady=5)
-entry_new_pass = ctk.CTkEntry(cadastro_frame, placeholder_text="Digite sua senha", show="*", width=300, font=("Roboto", 14))
+entry_new_pass = ctk.CTkEntry(cadastro_frame, placeholder_text="Digite sua senha", show="*", width=300,
+                              font=("Roboto", 14))
 entry_new_pass.pack(pady=5)
 
 button_frame_cadastro = ctk.CTkFrame(frame_cadastro, fg_color="transparent")
 button_frame_cadastro.pack(pady=20)
 
 btn_cadastrar_usuario = ctk.CTkButton(button_frame_cadastro, text="Cadastrar", command=cadastrar, width=150, height=40,
-font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
+                                     font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
 btn_cadastrar_usuario.pack(side="left", padx=10)
 
 btn_voltar_cadastro = ctk.CTkButton(button_frame_cadastro, text="Voltar", command=mostrar_login, width=150, height=40,
- font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
+                                    font=("Roboto", 14), corner_radius=10, hover_color="#3b82f6")
 btn_voltar_cadastro.pack(side="left", padx=10)
 
-
-# Tela de jogos
 frame_jogos = ctk.CTkFrame(janela)
 ctk.CTkLabel(frame_jogos, text="Jogos Disponíveis", font=("Roboto", 22)).pack(pady=10)
 
 frame_lista = ctk.CTkScrollableFrame(frame_jogos, width=550, height=400)
 frame_lista.pack(pady=10)
 
+btn_ver_carrinho = ctk.CTkButton(frame_jogos, text="Ver Carrinho", command=mostrar_carrinho)
+btn_ver_carrinho.pack(pady=10)
+
 btn_voltar_jogos = ctk.CTkButton(frame_jogos, text="Voltar", command=mostrar_principal)
 btn_voltar_jogos.pack(pady=10)
 
-
-# Tela admin
 frame_admin = ctk.CTkFrame(janela)
 ctk.CTkLabel(frame_admin, text="Área Admin", font=("Roboto", 22)).pack(pady=10)
 
 btn_cadastrar_jogo = ctk.CTkButton(frame_admin, text="Cadastrar Jogo",
-                                  command=lambda: [limpar_tela(), frame_add_jogo.pack(pady=20)])
-btn_cadastrar_jogo.pack(pady=5)
+command=lambda: [limpar_tela(), frame_add_jogo.pack(pady=20)])
+btn_cadastrar_jogo.pack(pady=8)
 
 btn_relatorios = ctk.CTkButton(frame_admin, text="Relatório de Vendas", command=ver_relatorios)
-btn_relatorios.pack(pady=5)
+btn_relatorios.pack(pady=8)
 
 btn_ver_jogos_admin = ctk.CTkButton(frame_admin, text="Ver Jogos", command=mostrar_jogos)
-btn_ver_jogos_admin.pack(pady=5)
+btn_ver_jogos_admin.pack(pady=8)
 
-btn_logout = ctk.CTkButton(frame_admin, text="Logout",
-                          command=lambda: [usuario_logado.__setitem__(0, None), mostrar_principal()])
-btn_logout.pack(pady=5)
+btn_deslogar_admin = ctk.CTkButton(frame_admin, text="Deslogar",
+command=lambda: [usuario_logado.__setitem__(0, None), mostrar_principal()],
+fg_color="#b83232", hover_color="#ff4d4d")
+btn_deslogar_admin.pack(pady=15)
 
-
-# Tela de adicionar jogo
 frame_add_jogo = ctk.CTkFrame(janela)
 ctk.CTkLabel(frame_add_jogo, text="Cadastrar Novo Jogo", font=("Roboto", 20)).pack(pady=10)
 
@@ -253,6 +287,16 @@ btn_salvar_jogo.pack(pady=5)
 btn_voltar_add_jogo = ctk.CTkButton(frame_add_jogo, text="Voltar", command=mostrar_admin_menu)
 btn_voltar_add_jogo.pack(pady=5)
 
+# Frame do carrinho
+
+frame_carrinho = ctk.CTkFrame(janela)
+ctk.CTkLabel(frame_carrinho, text="Seu Carrinho", font=("Roboto", 22)).pack(pady=10)
+
+frame_carrinho_lista = ctk.CTkScrollableFrame(frame_carrinho, width=550, height=400)
+frame_carrinho_lista.pack(pady=10)
+
+btn_voltar_carrinho = ctk.CTkButton(frame_carrinho, text="Voltar", command=mostrar_jogos)
+btn_voltar_carrinho.pack(pady=10)
 
 mostrar_principal()
 janela.mainloop()
