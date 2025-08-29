@@ -88,7 +88,7 @@ def cadastrar_jogo():
 def ver_relatorios():
     texto = "\n".join(f"{v['cliente']} comprou {v['jogo']} por R${v['valor']:.2f}" for v in vendas) if vendas else "Nenhuma venda ainda."
     messagebox.showinfo("Relatório de Vendas", texto)
-
+     
 def sair(): janela.destroy()
 
 # tela inicial
@@ -170,3 +170,4 @@ ctk.CTkButton(frame_add_jogo, text="Voltar", command=mostrar_admin_menu).pack(pa
 
 mostrar_principal()
 janela.mainloop()
+     

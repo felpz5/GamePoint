@@ -9,20 +9,4 @@ ctk.set_default_color_theme("blue")
 janela = ctk.CTk()
 janela.geometry('1500x900')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 janela.mainloop()
