@@ -14,7 +14,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS carrinho (nome_usuario TEXT, id_jog
 cursor.execute('''CREATE TABLE IF NOT EXISTS vendas (id INTEGER PRIMARY KEY AUTOINCREMENT, nome_usuario TEXT, id_jogo INTEGER, quantidade INTEGER, data_venda TEXT)''')
 conn.commit()
 
-class LojaJogos(ctk.CTk):
+class LojaJogos(ctk.CTk): 
     def __init__(self):
         super().__init__()
         self.title("Loja de Jogos")
