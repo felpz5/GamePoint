@@ -6,8 +6,8 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 usuarios = {
-    "admin": {"senha": "admin123", "cargo": "admin"},
-    "cliente": {"senha": "cliente123", "cargo": "cliente"}
+    "admin": {"senha": "123", "cargo": "admin"},
+    "cliente": {"senha": "1234", "cargo": "cliente"}
 }
 jogos = [
     {"id": 1, "nome": "Pokémon Emerald", "genero": "RPG", "preco": 59.99, "estoque": 10},
