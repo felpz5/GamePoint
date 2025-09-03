@@ -36,7 +36,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_principal(self):
         self.limpar_tela()
         self.frame_inicio = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_inicio, text="🎮 GamePoint", font=("Roboto", 32, "bold"), text_color="#4CAF50").pack(pady=40)
+        ctk.CTkLabel(self.frame_inicio, text=" GamePoint", font=("Roboto", 32, "bold"), text_color="#4CAF50").pack(pady=40)
         botao_ver_jogos = ctk.CTkButton(self.frame_inicio, text="Ver Jogos", width=250, height=48, font=("Roboto", 16),
                                         corner_radius=10, command=self.criar_tela_jogos)
         botao_ver_jogos.pack(pady=12)
@@ -52,7 +52,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_login(self):
         self.limpar_tela()
         self.frame_login = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_login, text="🔐 Login", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=30)
+        ctk.CTkLabel(self.frame_login, text=" Login", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=30)
         form_login = ctk.CTkFrame(self.frame_login, fg_color="transparent")
         form_login.pack(pady=10)
         self.entry_usuario = ctk.CTkEntry(form_login, placeholder_text="Usuário", width=350, height=40, font=("Roboto", 14))
@@ -73,7 +73,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_cadastro(self):
         self.limpar_tela()
         self.frame_cadastro = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_cadastro, text="📝 Cadastro", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=30)
+        ctk.CTkLabel(self.frame_cadastro, text=" Cadastro", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=30)
         form_cadastro = ctk.CTkFrame(self.frame_cadastro, fg_color="transparent")
         form_cadastro.pack(pady=10)
         self.entry_novo_usuario = ctk.CTkEntry(form_cadastro, placeholder_text="Novo Usuário", width=350, height=40, font=("Roboto", 14))
@@ -91,7 +91,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_jogos(self):
         self.limpar_tela()
         self.frame_jogos = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_jogos, text="🎲 Jogos", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_jogos, text=" Jogos", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         search_frame = ctk.CTkFrame(self.frame_jogos, fg_color="transparent")
         search_frame.pack(pady=10)
         self.entry_busca = ctk.CTkEntry(search_frame, placeholder_text="Buscar por nome ou gênero", width=400, height=40, font=("Roboto", 14))
@@ -113,7 +113,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_admin(self):
         self.limpar_tela()
         self.frame_admin = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_admin, text="🛠 Área Admin", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_admin, text=" Área Admin", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         admin_menu = ctk.CTkFrame(self.frame_admin, fg_color="transparent")
         admin_menu.pack(pady=10)
         botao_cadastrar_jogo = ctk.CTkButton(admin_menu, text="Cadastrar Jogo", width=300, height=48, font=("Roboto", 16),
@@ -136,7 +136,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_gerenciar_usuarios(self):
         self.limpar_tela()
         self.frame_usuarios = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_usuarios, text="👥 Gerenciar Usuários", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_usuarios, text=" Gerenciar Usuários", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         self.frame_lista_usuarios = ctk.CTkScrollableFrame(self.frame_usuarios, width=600, height=400, corner_radius=12)
         self.frame_lista_usuarios.pack(pady=15, padx=10)
         botao_voltar = ctk.CTkButton(self.frame_usuarios, text="Voltar", width=250, height=48, font=("Roboto", 16),
@@ -169,7 +169,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_cadastrar_jogo(self):
         self.limpar_tela()
         self.frame_add_jogo = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_add_jogo, text="🎮 Cadastrar Jogo", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_add_jogo, text=" Cadastrar Jogo", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         form_add_jogo = ctk.CTkFrame(self.frame_add_jogo, fg_color="transparent")
         form_add_jogo.pack(pady=10)
         self.nome_var = ctk.StringVar()
@@ -193,7 +193,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_editar_excluir_jogo(self):
         self.limpar_tela()
         self.frame_editar_excluir = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_editar_excluir, text="✏️ Editar ou Excluir Jogo", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_editar_excluir, text=" Editar ou Excluir Jogo", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         self.frame_lista_edicao = ctk.CTkScrollableFrame(self.frame_editar_excluir, width=600, height=300, corner_radius=12)
         self.frame_lista_edicao.pack(pady=15, padx=10)
         form_editar = ctk.CTkFrame(self.frame_editar_excluir, fg_color="transparent")
@@ -215,7 +215,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_relatorios(self):
         self.limpar_tela()
         self.frame_relatorios = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_relatorios, text="📊 Relatório de Vendas", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_relatorios, text=" Relatório de Vendas", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         colunas = ("Id", "Cliente", "Jogo", "Qtd", "Valor", "Data")
         self.tree = ttk.Treeview(self.frame_relatorios, columns=colunas, show="headings", height=15)
         for col in colunas:
@@ -238,7 +238,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_cliente(self):
         self.limpar_tela()
         self.frame_cliente = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_cliente, text="👤 Área do Cliente", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_cliente, text=" Área do Cliente", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         botao_ver_jogos = ctk.CTkButton(self.frame_cliente, text="Ver Jogos", width=250, height=48, font=("Roboto", 16),
                                         corner_radius=10, command=self.criar_tela_jogos)
         botao_ver_jogos.pack(pady=12)
@@ -256,7 +256,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_minhas_compras(self):
         self.limpar_tela()
         self.frame_compras = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_compras, text="🛍 Minhas Compras", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_compras, text=" Minhas Compras", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         colunas = ("Id", "Jogo", "Qtd", "Valor", "Data")
         self.tree_compras = ttk.Treeview(self.frame_compras, columns=colunas, show="headings", height=15)
         for col in colunas:
@@ -281,7 +281,7 @@ class LojaJogos(ctk.CTk):
     def criar_tela_carrinho(self):
         self.limpar_tela()
         self.frame_carrinho = ctk.CTkFrame(self, fg_color="#2a2a3a", corner_radius=20)
-        ctk.CTkLabel(self.frame_carrinho, text="🛒 Carrinho", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
+        ctk.CTkLabel(self.frame_carrinho, text="Carrinho", font=("Roboto", 28, "bold"), text_color="#4CAF50").pack(pady=20)
         self.frame_lista_carrinho = ctk.CTkScrollableFrame(self.frame_carrinho, width=650, height=500, corner_radius=12)
         self.frame_lista_carrinho.pack(pady=15, padx=10)
         botoes_carrinho = ctk.CTkFrame(self.frame_carrinho, fg_color="transparent")
