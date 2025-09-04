@@ -91,6 +91,20 @@ ________________
 
                                                             * Opções de PIX, cartão, carteira digital do app. - projeto futuro
 
+                                                                  🎨 Paleta de cores da logo "P.U.P."
 
+                                                                       Roxo de fundo: #2A0C4B
+
+                                                                       Laranja da xícara e texto: #FF6C1A
+
+                                                                        Amarelo dourado do gradiente do texto: #FFB22E
+
+                                                                          Vermelho do botão (B): #F54035
+
+                                                                           Azul do botão (X): #3EB7FF
+
+                                                                           Roxo do controle: #6A28C9
+
+                                                                           Ciano do detalhe do controle: #00C6C9
 
 Front do sistema
