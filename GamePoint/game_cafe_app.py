@@ -1,4 +1,3 @@
-# Importar bibliotecas necessárias
 import customtkinter as ctk
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -19,13 +18,13 @@ ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
 # Definir esquema de cores
-PRIMARY_PURPLE = "#8B5CF6"  # Roxo suave para acentos
-SECONDARY_ORANGE = "#F59E0B"  # Laranja suave para destaques
-GOLDEN_YELLOW = "#EAB308"  # Amarelo dourado para texto
-RED_BUTTON = "#EF4444"  # Vermelho suave para botões
-BLUE_BUTTON = "#3B82F6"  # Azul suave para botões
-BACKGROUND_LIGHT = "#F3E8FF"  # Fundo roxo claro (original)
-PANEL_BG = "#DDD6FE"  # Roxo mais claro para painéis
+PRIMARY_PURPLE = "#8B5CF6"  
+SECONDARY_ORANGE = "#F59E0B" 
+GOLDEN_YELLOW = "#EAB308"  
+RED_BUTTON = "#EF4444"  
+BLUE_BUTTON = "#3B82F6" 
+BACKGROUND_LIGHT = "#F3E8FF"  
+PANEL_BG = "#DDD6FE" 
 
 # Caminhos para arquivos de dados
 DATA_DIR = Path("data")
@@ -145,7 +144,7 @@ def safe_save_json(caminho_arquivo, dados):
         print(f"Erro ao salvar {caminho_arquivo}: {e}")
         messagebox.showerror("Erro", f"Falha ao salvar dados: {e}")
 
-# Inicializar arquivos JSON com dados padrão
+# arquivos JSON com dados padrão
 safe_save_json(TABLES_FILE, DEFAULT_TABLES)
 safe_save_json(MENU_FILE, DEFAULT_MENU)
 safe_save_json(ORDERS_FILE, [])
@@ -164,7 +163,6 @@ class GameCafeApp(ctk.CTk):
         self.geometry("1000x700")
 
         # Logo principal
-        # Comentário: Coloque a imagem do logo em 'images/content-Photoroom.png'
         try:
             caminho_logo = IMAGES_DIR / "content-Photoroom.png"
             print(f"Tentando carregar logo: {caminho_logo}")
@@ -195,13 +193,13 @@ class GameCafeApp(ctk.CTk):
         self.mesa_atual = None
         self.timer_id = None
         self.mesa_selecionada = None
-        self.imagens_pre_carregadas = {}  # Para pré-carregamento de imagens
+        self.imagens_pre_carregadas = {} 
 
-        # Pré-carregar imagens em thread separada
+       
         threading.Thread(target=self.pre_carregar_imagens, daemon=True).start()
 
     def pre_carregar_imagens(self):
-        """Pré-carregar imagens do menu."""
+       
         menu = safe_load_json(MENU_FILE, DEFAULT_MENU)
         for item in menu:
             caminho_imagem = IMAGES_DIR / f"{item['nome'].replace(' ', '_').replace('ç', 'c').replace('ã', 'a').replace('é', 'e').replace('ô', 'o')}.jpg"
@@ -213,7 +211,7 @@ class GameCafeApp(ctk.CTk):
                 print(f"Erro ao pré-carregar {caminho_imagem}: {e}")
 
     def mostrar_frame(self, frame):
-        """Esconder menu principal e mostrar frame com transição."""
+        
         self.logo_label.pack_forget()
         self.welcome_label.pack_forget()
         self.client_button.pack_forget()
@@ -222,7 +220,7 @@ class GameCafeApp(ctk.CTk):
         self.after(100, lambda: frame.pack(fill="both", expand=True))
 
     def voltar_ao_menu_principal(self):
-        """Retornar ao menu principal com transição."""
+       
         if self.timer_id:
             self.after_cancel(self.timer_id)
             self.timer_id = None
@@ -235,7 +233,7 @@ class GameCafeApp(ctk.CTk):
         self.after(100, self._empacotar_elementos_principais)
 
     def _empacotar_elementos_principais(self):
-        """Empacotar elementos do menu principal."""
+        
         self.logo_label.pack(pady=20)
         self.welcome_label.pack(pady=30)
         self.client_button.pack(pady=15, padx=200)
