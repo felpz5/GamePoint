@@ -1,0 +1,728 @@
+import customtkinter as ctk
+from tkinter import messagebox, ttk
+from datetime import datetime, timedelta
+import uuid
+import re
+
+# Paleta de cores minimalista
+BG_DARK = "#1E1E2F"  # Fundo escuro suave
+ACCENT = "#4A90E2"   # Azul acentuado para botões
+TEXT = "#E0E0E0"     # Texto claro
+CARD_BG = "#2D2D44"   # Fundo dos cards
+HOVER = "#5A9DE7"    # Hover dos botões
+
+usuarios = {
+    "admin": {"senha": "123", "cargo": "admin"},
+    "cliente": {"senha": "1234", "cargo": "cliente"}
+}
+mesas = [
+    {"id": 1, "console": "PS5", "status": "livre", "tempo_inicio": None, "tempo_total": 0},
+    {"id": 2, "console": "Xbox", "status": "livre", "tempo_inicio": None, "tempo_total": 0},
+    {"id": 3, "console": "Nintendo switch", "status": "livre", "tempo_inicio": None, "tempo_total": 0}
+]
+consoles = [
+    {"id": 1, "tipo": "PS5", "jogos": ["FIFA 23", "God of War"], "manutencao": []},
+    {"id": 2, "tipo": "Xbox", "jogos": ["Mortal Kombat", "Forza Horizon"], "manutencao": []},
+    {"id": 3, "tipo": "Nintendo switch", "jogos": ["Nintendo Switch Sports"], "manutencao": []}
+]
+cardapio = [
+    {"id": 1, "nome": "Hambúrguer", "preco": 25.00, "tipo": "comida"},
+    {"id": 2, "nome": "Refrigerante", "preco": 8.00, "tipo": "bebida"}
+]
+pedidos = []
+reservas = []
+pagamentos = []
+feedbacks = []
+
+class GameCafeApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("P.U.P. Cafe")
+        self.geometry("900x600")
+        self.configure(fg_color=BG_DARK)
+        self.resizable(True, True)
+        self.usuario_atual = None
+
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
+
+        self.criar_tela_principal()
+
+    def limpar_tela(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+    def criar_tela_principal(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=BG_DARK, corner_radius=15)
+        ctk.CTkLabel(frame, text="P.U.P. Cafe", font=ctk.CTkFont(family="Helvetica", size=32, weight="bold"),
+                     text_color=ACCENT).pack(pady=30)
+        
+        btn_ver_mesas = ctk.CTkButton(frame, text="Ver Mesas", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                      fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                      command=self.criar_tela_mesas)
+        btn_ver_mesas.pack(pady=15)
+
+        if not self.usuario_atual:
+            btn_login = ctk.CTkButton(frame, text="Login / Cadastro", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                      fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                      command=self.criar_tela_login)
+            btn_login.pack(pady=15)
+        else:
+            btn_perfil = ctk.CTkButton(frame, text="Área do Usuário", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                       fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                       command=self.criar_tela_usuario)
+            btn_perfil.pack(pady=15)
+
+        btn_sair = ctk.CTkButton(frame, text="Sair", width=150, height=35, font=ctk.CTkFont(family="Helvetica", size=12),
+                                 fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                 command=self.destroy)
+        btn_sair.pack(pady=20)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_login(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Login", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        form = ctk.CTkFrame(frame, fg_color="transparent")
+        self.entry_usuario = ctk.CTkEntry(form, placeholder_text="Usuário", width=300, height=35,
+                                         font=ctk.CTkFont(family="Helvetica", size=12),
+                                         fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_usuario.pack(pady=10)
+        self.entry_senha = ctk.CTkEntry(form, placeholder_text="Senha", show="*", width=300, height=35,
+                                       font=ctk.CTkFont(family="Helvetica", size=12),
+                                       fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_senha.pack(pady=10)
+        
+        btn_entrar = ctk.CTkButton(form, text="Entrar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.fazer_login)
+        btn_entrar.pack(pady=15)
+        
+        btn_cadastrar = ctk.CTkButton(form, text="Cadastrar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                      fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                      command=self.criar_tela_cadastro)
+        btn_cadastrar.pack(pady=10)
+        
+        btn_voltar = ctk.CTkButton(form, text="Voltar", width=150, height=35, font=ctk.CTkFont(family="Helvetica", size=12),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_principal)
+        btn_voltar.pack(pady=15)
+        form.pack(pady=10)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_cadastro(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Cadastro", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        form = ctk.CTkFrame(frame, fg_color="transparent")
+        self.entry_novo_usuario = ctk.CTkEntry(form, placeholder_text="Novo Usuário", width=300, height=35,
+                                              font=ctk.CTkFont(family="Helvetica", size=12),
+                                              fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_novo_usuario.pack(pady=10)
+        self.entry_nova_senha = ctk.CTkEntry(form, placeholder_text="Senha", show="*", width=300, height=35,
+                                            font=ctk.CTkFont(family="Helvetica", size=12),
+                                            fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_nova_senha.pack(pady=10)
+        self.entry_nova_email = ctk.CTkEntry(form, placeholder_text="Email", width=300, height=35,
+                                            font=ctk.CTkFont(family="Helvetica", size=12),
+                                            fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_nova_email.pack(pady=10)
+        self.entry_nova_telefone = ctk.CTkEntry(form, placeholder_text="Telefone", width=300, height=35,
+                                               font=ctk.CTkFont(family="Helvetica", size=12),
+                                               fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_nova_telefone.pack(pady=10)
+        
+        btn_cadastrar = ctk.CTkButton(form, text="Cadastrar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                      fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                      command=self.cadastrar_usuario)
+        btn_cadastrar.pack(pady=15)
+        
+        btn_voltar = ctk.CTkButton(form, text="Voltar", width=150, height=35, font=ctk.CTkFont(family="Helvetica", size=12),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_login)
+        btn_voltar.pack(pady=15)
+        form.pack(pady=10)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_usuario(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Área do Usuário", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        menu = ctk.CTkFrame(frame, fg_color="transparent")
+        if self.usuario_atual["cargo"] == "admin":
+            btn_mesas = ctk.CTkButton(menu, text="Gerenciar Mesas", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                      fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                      command=self.criar_tela_gerenciar_mesas)
+            btn_mesas.pack(pady=10)
+            
+            btn_consoles = ctk.CTkButton(menu, text="Gerenciar Consoles", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                         fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                         command=self.criar_tela_gerenciar_consoles)
+            btn_consoles.pack(pady=10)
+            
+            btn_pedidos = ctk.CTkButton(menu, text="Gerenciar Pedidos", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                        fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                        command=self.criar_tela_gerenciar_pedidos)
+            btn_pedidos.pack(pady=10)
+            
+            btn_reservas = ctk.CTkButton(menu, text="Gerenciar Reservas", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                         fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                         command=self.criar_tela_gerenciar_reservas)
+            btn_reservas.pack(pady=10)
+            
+            btn_pagamentos = ctk.CTkButton(menu, text="Gerenciar Pagamentos", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                           fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                           command=self.criar_tela_gerenciar_pagamentos)
+            btn_pagamentos.pack(pady=10)
+            
+            btn_relatorios = ctk.CTkButton(menu, text="Relatórios", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                           fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                           command=self.criar_tela_relatorios)
+            btn_relatorios.pack(pady=10)
+        else:
+            btn_reservar = ctk.CTkButton(menu, text="Fazer Reserva", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                         fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                         command=self.criar_tela_reservar)
+            btn_reservar.pack(pady=10)
+            
+            btn_tempo = ctk.CTkButton(menu, text="Controle de Tempo", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                      fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                      command=self.criar_tela_tempo_jogo)
+            btn_tempo.pack(pady=10)
+            
+            btn_cardapio = ctk.CTkButton(menu, text="Cardápio e Pedidos", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                         fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                         command=self.criar_tela_cardapio)
+            btn_cardapio.pack(pady=10)
+            
+            btn_perfil = ctk.CTkButton(menu, text="Perfil do Jogador", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                       fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                       command=self.criar_tela_perfil)
+            btn_perfil.pack(pady=10)
+            
+            btn_pagamento = ctk.CTkButton(menu, text="Pagamentos", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                          fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                          command=self.criar_tela_pagamento_cliente)
+            btn_pagamento.pack(pady=10)
+        
+        btn_deslogar = ctk.CTkButton(menu, text="Deslogar", width=250, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                     fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                     command=self.deslogar)
+        btn_deslogar.pack(pady=10)
+        menu.pack(pady=10)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_gerenciar_mesas(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Gerenciar Mesas", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        lista = ctk.CTkScrollableFrame(frame, width=700, height=300, corner_radius=10, fg_color=BG_DARK)
+        for mesa in mesas:
+            card = ctk.CTkFrame(lista, fg_color=CARD_BG, corner_radius=10)
+            info = f"Mesa {mesa['id']} | Console: {mesa['console'] or 'Nenhum'} | Status: {mesa['status']}"
+            if mesa["tempo_inicio"]:
+                tempo = (datetime.now() - mesa["tempo_inicio"]).seconds // 60
+                info += f" | Tempo: {tempo} min"
+            ctk.CTkLabel(card, text=info, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT, anchor="w").pack(side="left", padx=15, pady=10)
+            btn_acao = ctk.CTkButton(card, text="Alterar Status", width=100, height=30, font=ctk.CTkFont(family="Helvetica", size=12),
+                                     fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                     command=lambda m=mesa: self.alterar_status_mesa(m))
+            btn_acao.pack(side="right", padx=10)
+            card.pack(pady=10, padx=15, fill="x")
+        lista.pack(pady=15, padx=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_gerenciar_consoles(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Gerenciar Consoles", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        lista = ctk.CTkScrollableFrame(frame, width=700, height=300, corner_radius=10, fg_color=BG_DARK)
+        for console in consoles:
+            card = ctk.CTkFrame(lista, fg_color=CARD_BG, corner_radius=10)
+            info = f"Console {console['id']} | Tipo: {console['tipo']} | Jogos: {', '.join(console['jogos'])}"
+            ctk.CTkLabel(card, text=info, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT, anchor="w").pack(side="left", padx=15, pady=10)
+            btn_manutencao = ctk.CTkButton(card, text="Registrar Manutenção", width=120, height=30, font=ctk.CTkFont(family="Helvetica", size=12),
+                                           fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                           command=lambda c=console: self.registrar_manutencao(c))
+            btn_manutencao.pack(side="right", padx=10)
+            card.pack(pady=10, padx=15, fill="x")
+        lista.pack(pady=15, padx=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_gerenciar_pedidos(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Gerenciar Pedidos", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        lista = ctk.CTkScrollableFrame(frame, width=700, height=300, corner_radius=10, fg_color=BG_DARK)
+        for pedido in pedidos:
+            card = ctk.CTkFrame(lista, fg_color=CARD_BG, corner_radius=10)
+            info = f"Pedido {pedido['id']} | Mesa {pedido['mesa']} | Item: {pedido['item']} | Status: {pedido['status']}"
+            ctk.CTkLabel(card, text=info, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT, anchor="w").pack(side="left", padx=15, pady=10)
+            btn_status = ctk.CTkButton(card, text="Atualizar Status", width=100, height=30, font=ctk.CTkFont(family="Helvetica", size=12),
+                                       fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                       command=lambda p=pedido: self.atualizar_status_pedido(p))
+            btn_status.pack(side="right", padx=10)
+            card.pack(pady=10, padx=15, fill="x")
+        lista.pack(pady=15, padx=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_gerenciar_reservas(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Gerenciar Reservas", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        lista = ctk.CTkScrollableFrame(frame, width=700, height=300, corner_radius=10, fg_color=BG_DARK)
+        for reserva in reservas:
+            card = ctk.CTkFrame(lista, fg_color=CARD_BG, corner_radius=10)
+            info = f"Reserva {reserva['id']} | Cliente: {reserva['cliente']} | Mesa {reserva['mesa']} | Data: {reserva['data']}"
+            ctk.CTkLabel(card, text=info, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT, anchor="w").pack(side="left", padx=15, pady=10)
+            btn_cancelar = ctk.CTkButton(card, text="Cancelar", width=100, height=30, font=ctk.CTkFont(family="Helvetica", size=12),
+                                         fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                         command=lambda r=reserva: self.cancelar_reserva(r))
+            btn_cancelar.pack(side="right", padx=10)
+            card.pack(pady=10, padx=15, fill="x")
+        lista.pack(pady=15, padx=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_gerenciar_pagamentos(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Gerenciar Pagamentos", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("Treeview", background=BG_DARK, foreground=TEXT, fieldbackground=BG_DARK)
+        style.configure("Treeview.Heading", background=CARD_BG, foreground=ACCENT)
+        
+        colunas = ("ID", "Cliente", "Valor", "Descrição", "Data")
+        tree = ttk.Treeview(frame, columns=colunas, show="headings", height=12, style="Treeview")
+        for col in colunas:
+            tree.heading(col, text=col)
+            tree.column(col, anchor="center", width=130)
+        for pagamento in pagamentos:
+            tree.insert("", "end", values=(pagamento['id'], pagamento['cliente'], f"R${pagamento['valor']:.2f}",
+                                           pagamento['descricao'], pagamento['data']))
+        tree.pack(fill="both", expand=True, padx=15, pady=15)
+        
+        total = sum(p['valor'] for p in pagamentos)
+        ctk.CTkLabel(frame, text=f"Total: R${total:.2f}", font=ctk.CTkFont(family="Helvetica", size=16, weight="bold"),
+                     text_color=ACCENT).pack(pady=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_relatorios(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Relatórios", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        jogos_pop = {}
+        for reserva in reservas:
+            mesa = next((m for m in mesas if m['id'] == reserva['mesa']), None)
+            if mesa and mesa['console']:
+                console = next((c for c in consoles if c['tipo'] == mesa['console']), None)
+                for jogo in console['jogos']:
+                    jogos_pop[jogo] = jogos_pop.get(jogo, 0) + 1
+        ctk.CTkLabel(frame, text="Jogos Mais Populares:", font=ctk.CTkFont(family="Helvetica", size=18, weight="bold"),
+                     text_color=ACCENT).pack(pady=10)
+        for jogo, count in sorted(jogos_pop.items(), key=lambda x: x[1], reverse=True)[:5]:
+            ctk.CTkLabel(frame, text=f"{jogo}: {count} reservas", font=ctk.CTkFont(family="Helvetica", size=14),
+                         text_color=TEXT).pack(pady=5)
+        
+        horas = {}
+        for reserva in reservas:
+            hora = reserva['data'].split()[1][:2]
+            horas[hora] = horas.get(hora, 0) + 1
+        ctk.CTkLabel(frame, text="Horários de Pico:", font=ctk.CTkFont(family="Helvetica", size=18, weight="bold"),
+                     text_color=ACCENT).pack(pady=10)
+        for hora, count in sorted(horas.items(), key=lambda x: x[1], reverse=True)[:5]:
+            ctk.CTkLabel(frame, text=f"{hora}h: {count} reservas", font=ctk.CTkFont(family="Helvetica", size=14),
+                         text_color=TEXT).pack(pady=5)
+        
+        ctk.CTkLabel(frame, text="Feedbacks Recentes:", font=ctk.CTkFont(family="Helvetica", size=18, weight="bold"),
+                     text_color=ACCENT).pack(pady=10)
+        for feedback in feedbacks[-5:]:
+            ctk.CTkLabel(frame, text=f"{feedback['cliente']}: {feedback['texto']}", font=ctk.CTkFont(family="Helvetica", size=14),
+                         text_color=TEXT).pack(pady=5)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_mesas(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Mesas Disponíveis", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        lista = ctk.CTkScrollableFrame(frame, width=700, height=300, corner_radius=10, fg_color=BG_DARK)
+        for mesa in mesas:
+            card = ctk.CTkFrame(lista, fg_color=CARD_BG, corner_radius=10)
+            info = f"Mesa {mesa['id']} | Console: {mesa['console'] or 'Nenhum'} | Status: {mesa['status']}"
+            ctk.CTkLabel(card, text=info, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT, anchor="w").pack(side="left", padx=15, pady=10)
+            if self.usuario_atual and self.usuario_atual["cargo"] == "cliente":
+                btn_reservar = ctk.CTkButton(card, text="Reservar", width=100, height=30, font=ctk.CTkFont(family="Helvetica", size=12),
+                                             fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                             command=lambda m=mesa: self.reservar_mesa(m))
+                btn_reservar.pack(side="right", padx=10)
+            card.pack(pady=10, padx=15, fill="x")
+        lista.pack(pady=15, padx=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_principal)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_reservar(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Fazer Reserva", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        form = ctk.CTkFrame(frame, fg_color="transparent")
+        self.entry_mesa = ctk.CTkEntry(form, placeholder_text="Número da Mesa", width=300, height=35,
+                                      font=ctk.CTkFont(family="Helvetica", size=12),
+                                      fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_mesa.pack(pady=10)
+        self.entry_tempo = ctk.CTkEntry(form, placeholder_text="Tempo (min)", width=300, height=35,
+                                       font=ctk.CTkFont(family="Helvetica", size=12),
+                                       fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_tempo.pack(pady=10)
+        
+        btn_reservar = ctk.CTkButton(form, text="Confirmar Reserva", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                     fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                     command=self.fazer_reserva)
+        btn_reservar.pack(pady=15)
+        
+        btn_voltar = ctk.CTkButton(form, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        form.pack(pady=10)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_tempo_jogo(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Controle de Tempo", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        lista = ctk.CTkScrollableFrame(frame, width=700, height=300, corner_radius=10, fg_color=BG_DARK)
+        username = self.usuario_atual["nome_usuario"]
+        for reserva in [r for r in reservas if r['cliente'] == username]:
+            mesa = next((m for m in mesas if m['id'] == reserva['mesa']), None)
+            if mesa and mesa['tempo_inicio']:
+                tempo = (datetime.now() - mesa["tempo_inicio"]).seconds // 60
+                info = f"Mesa {mesa['id']} | Tempo decorrido: {tempo} min"
+                card = ctk.CTkFrame(lista, fg_color=CARD_BG, corner_radius=10)
+                ctk.CTkLabel(card, text=info, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT, anchor="w").pack(side="left", padx=15, pady=10)
+                btn_extend = ctk.CTkButton(card, text="Estender Tempo", width=100, height=30, font=ctk.CTkFont(family="Helvetica", size=12),
+                                           fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                           command=lambda m=mesa: self.estender_tempo(m))
+                btn_extend.pack(side="right", padx=10)
+                card.pack(pady=10, padx=15, fill="x")
+        lista.pack(pady=15, padx=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_cardapio(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Cardápio", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        lista = ctk.CTkScrollableFrame(frame, width=700, height=300, corner_radius=10, fg_color=BG_DARK)
+        for item in cardapio:
+            card = ctk.CTkFrame(lista, fg_color=CARD_BG, corner_radius=10)
+            info = f"{item['nome']} ({item['tipo']}) | R${item['preco']:.2f}"
+            ctk.CTkLabel(card, text=info, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT, anchor="w").pack(side="left", padx=15, pady=10)
+            btn_pedir = ctk.CTkButton(card, text="Pedir", width=100, height=30, font=ctk.CTkFont(family="Helvetica", size=12),
+                                      fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                      command=lambda i=item: self.fazer_pedido(i))
+            btn_pedir.pack(side="right", padx=10)
+            card.pack(pady=10, padx=15, fill="x")
+        lista.pack(pady=15, padx=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_perfil(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Perfil do Jogador", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        username = self.usuario_atual["nome_usuario"]
+        jogos_jogados = set()
+        for reserva in reservas:
+            if reserva['cliente'] == username:
+                mesa = next((m for m in mesas if m['id'] == reserva['mesa']), None)
+                if mesa and mesa['console']:
+                    console = next((c for c in consoles if c['tipo'] == mesa['console']), None)
+                    if console:
+                        jogos_jogados.update(console['jogos'])
+        
+        ctk.CTkLabel(frame, text=f"Usuário: {username}", font=ctk.CTkFont(family="Helvetica", size=16),
+                     text_color=TEXT).pack(pady=10)
+        ctk.CTkLabel(frame, text="Jogos Jogados:", font=ctk.CTkFont(family="Helvetica", size=18, weight="bold"),
+                     text_color=ACCENT).pack(pady=10)
+        for jogo in jogos_jogados:
+            ctk.CTkLabel(frame, text=jogo, font=ctk.CTkFont(family="Helvetica", size=14), text_color=TEXT).pack(pady=5)
+        
+        ctk.CTkLabel(frame, text="Feedback:", font=ctk.CTkFont(family="Helvetica", size=18, weight="bold"),
+                     text_color=ACCENT).pack(pady=10)
+        self.entry_feedback = ctk.CTkEntry(frame, placeholder_text="Deixe seu feedback", width=350, height=35,
+                                          font=ctk.CTkFont(family="Helvetica", size=12),
+                                          fg_color=BG_DARK, text_color=TEXT, border_color=ACCENT)
+        self.entry_feedback.pack(pady=10)
+        btn_enviar = ctk.CTkButton(frame, text="Enviar Feedback", width=180, height=35, font=ctk.CTkFont(family="Helvetica", size=12),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=6,
+                                   command=self.enviar_feedback)
+        btn_enviar.pack(pady=10)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def criar_tela_pagamento_cliente(self):
+        self.limpar_tela()
+        frame = ctk.CTkFrame(self, fg_color=CARD_BG, corner_radius=15)
+        ctk.CTkLabel(frame, text="Pagamentos", font=ctk.CTkFont(family="Helvetica", size=24, weight="bold"),
+                     text_color=ACCENT).pack(pady=20)
+        
+        username = self.usuario_atual["nome_usuario"]
+        total = sum(p['valor'] for p in pagamentos if p['cliente'] == username)
+        ctk.CTkLabel(frame, text=f"Total Pago: R${total:.2f}", font=ctk.CTkFont(family="Helvetica", size=16, weight="bold"),
+                     text_color=ACCENT).pack(pady=10)
+        
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("Treeview", background=BG_DARK, foreground=TEXT, fieldbackground=BG_DARK)
+        style.configure("Treeview.Heading", background=CARD_BG, foreground=ACCENT)
+        
+        colunas = ("ID", "Valor", "Descrição", "Data")
+        tree = ttk.Treeview(frame, columns=colunas, show="headings", height=12, style="Treeview")
+        for col in colunas:
+            tree.heading(col, text=col)
+            tree.column(col, anchor="center", width=130)
+        for pagamento in [p for p in pagamentos if p['cliente'] == username]:
+            tree.insert("", "end", values=(pagamento['id'], f"R${pagamento['valor']:.2f}", pagamento['descricao'], pagamento['data']))
+        tree.pack(fill="both", expand=True, padx=15, pady=15)
+        
+        btn_voltar = ctk.CTkButton(frame, text="Voltar", width=200, height=40, font=ctk.CTkFont(family="Helvetica", size=14),
+                                   fg_color=ACCENT, hover_color=HOVER, corner_radius=8,
+                                   command=self.criar_tela_usuario)
+        btn_voltar.pack(pady=15)
+        frame.pack(expand=True, padx=20, pady=20)
+
+    def fazer_login(self):
+        usuario = self.entry_usuario.get()
+        senha = self.entry_senha.get()
+        if usuario in usuarios and usuarios[usuario]["senha"] == senha:
+            self.usuario_atual = {"nome_usuario": usuario, "cargo": usuarios[usuario]["cargo"]}
+            self.criar_tela_usuario()
+        else:
+            messagebox.showerror("Erro", "Usuário ou senha inválidos!")
+
+    def cadastrar_usuario(self):
+        usuario = self.entry_novo_usuario.get()
+        senha = self.entry_nova_senha.get()
+        email = self.entry_nova_email.get()
+        telefone = self.entry_nova_telefone.get()
+        if not (usuario and senha and email and telefone):
+            messagebox.showerror("Erro", "Todos os campos são obrigatórios!")
+            return
+        if usuario in usuarios:
+            messagebox.showerror("Erro", "Nome de usuário já existe!")
+            return
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            messagebox.showerror("Erro", "E-mail inválido!")
+            return
+        if not re.match(r"^\d{10,11}$", telefone):
+            messagebox.showerror("Erro", "Telefone inválido! Use 10 ou 11 dígitos.")
+            return
+        usuarios[usuario] = {"senha": senha, "cargo": "cliente", "email": email, "telefone": telefone}
+        messagebox.showinfo("Sucesso", "Usuário cadastrado com sucesso!")
+        self.criar_tela_login()
+
+    def deslogar(self):
+        self.usuario_atual = None
+        messagebox.showinfo("Logout", "Saiu da conta.")
+        self.criar_tela_principal()
+
+    def alterar_status_mesa(self, mesa):
+        if mesa["status"] == "livre":
+            mesa["status"] = "ocupada"
+            mesa["tempo_inicio"] = datetime.now()
+        elif mesa["status"] == "ocupada":
+            mesa["status"] = "livre"
+            tempo = (datetime.now() - mesa["tempo_inicio"]).seconds // 60
+            mesa["tempo_total"] += tempo
+            pagamentos.append({
+                "id": str(uuid.uuid4())[:8],
+                "cliente": self.usuario_atual["nome_usuario"],
+                "valor": tempo * 10 / 60,
+                "descricao": f"Uso da mesa {mesa['id']}",
+                "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+            })
+            mesa["tempo_inicio"] = None
+        self.criar_tela_gerenciar_mesas()
+
+    def registrar_manutencao(self, console):
+        console["manutencao"].append({"data": datetime.now().strftime("%d/%m/%Y %H:%M"), "detalhes": "Manutenção realizada"})
+        messagebox.showinfo("Sucesso", "Manutenção registrada!")
+        self.criar_tela_gerenciar_consoles()
+
+    def atualizar_status_pedido(self, pedido):
+        if pedido["status"] == "preparando":
+            pedido["status"] = "pronto"
+        elif pedido["status"] == "pronto":
+            pedido["status"] = "entregue"
+            pagamentos.append({
+                "id": str(uuid.uuid4())[:8],
+                "cliente": pedido["cliente"],
+                "valor": pedido["valor"],
+                "descricao": f"Pedido {pedido['id']} - {pedido['item']}",
+                "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+            })
+        self.criar_tela_gerenciar_pedidos()
+
+    def cancelar_reserva(self, reserva):
+        mesa = next((m for m in mesas if m['id'] == reserva['mesa']), None)
+        if mesa:
+            mesa["status"] = "livre"
+        reservas.remove(reserva)
+        messagebox.showinfo("Sucesso", "Reserva cancelada!")
+        self.criar_tela_gerenciar_reservas()
+
+    def reservar_mesa(self, mesa):
+        if mesa["status"] != "livre":
+            messagebox.showerror("Erro", "Mesa não disponível!")
+            return
+        reservas.append({
+            "id": str(uuid.uuid4())[:8],
+            "cliente": self.usuario_atual["nome_usuario"],
+            "mesa": mesa["id"],
+            "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+        })
+        mesa["status"] = "reservada"
+        messagebox.showinfo("Sucesso", "Mesa reservada!")
+        self.criar_tela_mesas()
+
+    def fazer_reserva(self):
+        try:
+            mesa_id = int(self.entry_mesa.get())
+            tempo = int(self.entry_tempo.get())
+            if mesa_id not in [m['id'] for m in mesas]:
+                messagebox.showerror("Erro", "Mesa inválida!")
+                return
+            mesa = next((m for m in mesas if m['id'] == mesa_id), None)
+            if not mesa or mesa["status"] != "livre":
+                messagebox.showerror("Erro", "Mesa inválida ou não disponível!")
+                return
+            reservas.append({
+                "id": str(uuid.uuid4())[:8],
+                "cliente": self.usuario_atual["nome_usuario"],
+                "mesa": mesa_id,
+                "data": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                "tempo": tempo
+            })
+            mesa["status"] = "reservada"
+            messagebox.showinfo("Sucesso", "Reserva realizada!")
+            self.criar_tela_usuario()
+        except ValueError:
+            messagebox.showerror("Erro", "Número da mesa e tempo devem ser valores numéricos!")
+
+    def estender_tempo(self, mesa):
+        reservas_usuario = [r for r in reservas if r['cliente'] == self.usuario_atual["nome_usuario"] and r['mesa'] == mesa['id']]
+        if reservas_usuario:
+            reservas_usuario[0]["tempo"] += 30
+            messagebox.showinfo("Sucesso", "Tempo estendido!")
+        self.criar_tela_tempo_jogo()
+
+    def fazer_pedido(self, item):
+        username = self.usuario_atual["nome_usuario"]
+        reserva_atual = next((r for r in reservas if r['cliente'] == username and r['mesa'] in [m['id'] for m in mesas if m['status'] != 'livre']), None)
+        mesa_id = reserva_atual['mesa'] if reserva_atual else 1
+        pedidos.append({
+            "id": str(uuid.uuid4())[:8],
+            "cliente": username,
+            "mesa": mesa_id,
+            "item": item["nome"],
+            "valor": item["preco"],
+            "status": "preparando",
+            "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+        })
+        messagebox.showinfo("Sucesso", f"Pedido de {item['nome']} realizado!")
+        self.criar_tela_cardapio()
+
+    def enviar_feedback(self):
+        texto = self.entry_feedback.get()
+        if texto:
+            feedbacks.append({
+                "cliente": self.usuario_atual["nome_usuario"],
+                "texto": texto,
+                "data": datetime.now().strftime("%d/%m/%Y %H:%M")
+            })
+            messagebox.showinfo("Sucesso", "Feedback enviado!")
+            self.entry_feedback.delete(0, "end")
+        else:
+            messagebox.showerror("Erro", "Escreva um feedback!")
+
+    def rodar(self):
+        self.mainloop()
+
+if __name__ == "__main__":
+    app = GameCafeApp()
+    app.rodar()
