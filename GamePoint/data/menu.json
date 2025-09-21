@@ -1,0 +1,142 @@
+[
+    {
+        "nome": "Pizza Margherita",
+        "preco": 25.0
+    },
+    {
+        "nome": "Pizza Pepperoni",
+        "preco": 28.0
+    },
+    {
+        "nome": "Pizza Quatro Queijos",
+        "preco": 30.0
+    },
+    {
+        "nome": "Pizza Calabresa",
+        "preco": 27.0
+    },
+    {
+        "nome": "Pizza Frango com Catupiry",
+        "preco": 29.0
+    },
+    {
+        "nome": "Burger Clássico",
+        "preco": 15.0
+    },
+    {
+        "nome": "Burger Vegetariano",
+        "preco": 14.0
+    },
+    {
+        "nome": "Burger Duplo",
+        "preco": 20.0
+    },
+    {
+        "nome": "Burger Bacon",
+        "preco": 18.0
+    },
+    {
+        "nome": "Burger Cheddar",
+        "preco": 17.0
+    },
+    {
+        "nome": "Refrigerante Lata",
+        "preco": 5.0
+    },
+    {
+        "nome": "Suco Natural",
+        "preco": 7.0
+    },
+    {
+        "nome": "Água Mineral",
+        "preco": 3.0
+    },
+    {
+        "nome": "Água com Gás",
+        "preco": 4.0
+    },
+    {
+        "nome": "Chá Gelado",
+        "preco": 5.0
+    },
+    {
+        "nome": "Batata Frita",
+        "preco": 10.0
+    },
+    {
+        "nome": "Onion Rings",
+        "preco": 12.0
+    },
+    {
+        "nome": "Batata Doce Frita",
+        "preco": 11.0
+    },
+    {
+        "nome": "Batata Rústica",
+        "preco": 12.0
+    },
+    {
+        "nome": "Mandioquinha Frita",
+        "preco": 11.0
+    },
+    {
+        "nome": "Salada Caesar",
+        "preco": 18.0
+    },
+    {
+        "nome": "Salada Grega",
+        "preco": 16.0
+    },
+    {
+        "nome": "Salada Caprese",
+        "preco": 17.0
+    },
+    {
+        "nome": "Salada Tropical",
+        "preco": 15.0
+    },
+    {
+        "nome": "Pasta Carbonara",
+        "preco": 22.0
+    },
+    {
+        "nome": "Pasta Bolognese",
+        "preco": 20.0
+    },
+    {
+        "nome": "Pasta Alfredo",
+        "preco": 21.0
+    },
+    {
+        "nome": "Pasta Primavera",
+        "preco": 23.0
+    },
+    {
+        "nome": "Sanduíche de Frango",
+        "preco": 13.0
+    },
+    {
+        "nome": "Hot Dog",
+        "preco": 8.0
+    },
+    {
+        "nome": "Sanduíche Vegano",
+        "preco": 12.0
+    },
+    {
+        "nome": "Sanduíche de Carne",
+        "preco": 14.0
+    },
+    {
+        "nome": "Nachos",
+        "preco": 15.0
+    },
+    {
+        "nome": "Quesadilla",
+        "preco": 16.0
+    },
+    {
+        "nome": "Taco",
+        "preco": 10.0
+    }
+]

@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Fortnite",
+        "plays": 10
+    },
+    {
+        "name": "Minecraft",
+        "plays": 15
+    },
+    {
+        "name": "Call of Duty",
+        "plays": 8
+    },
+    {
+        "name": "Among Us",
+        "plays": 12
+    },
+    {
+        "name": "FIFA",
+        "plays": 9
+    }
+]

@@ -1,0 +1,93 @@
+{
+    "usuarios": {
+        "admin": {
+            "senha": "123",
+            "cargo": "admin",
+            "email": "admin@gamecafe.com",
+            "telefone": "123456789"
+        },
+        "cliente": {
+            "senha": "1234",
+            "cargo": "cliente",
+            "email": "cliente@gamecafe.com",
+            "telefone": "987654321"
+        }
+    },
+    "mesas": [
+        {
+            "id": 1,
+            "console": "PS5",
+            "status": "reservada",
+            "tempo_inicio": null,
+            "tempo_total": 0
+        },
+        {
+            "id": 2,
+            "console": "Xbox",
+            "status": "livre",
+            "tempo_inicio": null,
+            "tempo_total": 0
+        },
+        {
+            "id": 3,
+            "console": "Nintendo Switch",
+            "status": "livre",
+            "tempo_inicio": null,
+            "tempo_total": 0
+        }
+    ],
+    "consoles": [
+        {
+            "id": 1,
+            "tipo": "PS5",
+            "jogos": [
+                "FIFA 23",
+                "God of War"
+            ],
+            "manutencao": []
+        },
+        {
+            "id": 2,
+            "tipo": "Xbox",
+            "jogos": [
+                "Mortal Kombat",
+                "Forza Horizon"
+            ],
+            "manutencao": []
+        },
+        {
+            "id": 3,
+            "tipo": "Nintendo Switch",
+            "jogos": [
+                "Nintendo Switch Sports"
+            ],
+            "manutencao": []
+        }
+    ],
+    "cardapio": [
+        {
+            "id": 1,
+            "nome": "Hamb\u00farguer",
+            "preco": 25.0,
+            "tipo": "comida"
+        },
+        {
+            "id": 2,
+            "nome": "Refrigerante",
+            "preco": 8.0,
+            "tipo": "bebida"
+        }
+    ],
+    "pedidos": [],
+    "reservas": [
+        {
+            "id": "6f9028b8",
+            "cliente": "cliente",
+            "mesa": 1,
+            "data": "17/09/2025 20:35",
+            "tempo": 50
+        }
+    ],
+    "pagamentos": [],
+    "feedbacks": []
+}

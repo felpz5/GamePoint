@@ -1,0 +1,58 @@
+{
+    "MESAS": {
+        "1": {
+            "numero": 1,
+            "status": "livre",
+            "tempo_restante": 0,
+            "console": null
+        },
+        "2": {
+            "numero": 2,
+            "status": "livre",
+            "tempo_restante": 0,
+            "console": null
+        },
+        "3": {
+            "numero": 3,
+            "status": "livre",
+            "tempo_restante": 0,
+            "console": null
+        },
+        "4": {
+            "numero": 4,
+            "status": "livre",
+            "tempo_restante": 0,
+            "console": null
+        },
+        "5": {
+            "numero": 5,
+            "status": "livre",
+            "tempo_restante": 0,
+            "console": null
+        }
+    },
+    "CONSOLES": {
+        "PS5": {
+            "jogos": [
+                "FIFA 23",
+                "God of War",
+                "Spider-Man"
+            ],
+            "status": "dispon\u00edvel"
+        },
+        "Xbox": {
+            "jogos": [
+                "Halo",
+                "Forza Horizon"
+            ],
+            "status": "dispon\u00edvel"
+        }
+    },
+    "CARDAPIO": {
+        "Caf\u00e9": 5.0,
+        "Suco": 7.0,
+        "Pizza": 20.0
+    },
+    "PEDIDOS": [],
+    "RESERVAS": []
+}

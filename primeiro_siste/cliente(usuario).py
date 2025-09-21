@@ -6,15 +6,16 @@ from datetime import datetime
 # Inicializar banco de dados
 conn = sqlite3.connect('loja_jogos.db')
 cursor = conn.cursor()
-cursor.execute("INSERT OR IGNORE INTO usuarios (nome_usuario, senha, cargo) VALUES (?, ?, ?)", ("cliente", "12345", "cliente"))
-conn.commit()
+
 cursor.execute('''CREATE TABLE IF NOT EXISTS usuarios (nome_usuario TEXT PRIMARY KEY, senha TEXT, cargo TEXT)''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS jogos (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, genero TEXT, preco REAL, estoque INTEGER)''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS carrinho (nome_usuario TEXT, id_jogo INTEGER, quantidade INTEGER, PRIMARY KEY (nome_usuario, id_jogo))''')
 cursor.execute('''CREATE TABLE IF NOT EXISTS vendas (id INTEGER PRIMARY KEY AUTOINCREMENT, nome_usuario TEXT, id_jogo INTEGER, quantidade INTEGER, data_venda TEXT)''')
 conn.commit()
+cursor.execute("INSERT OR IGNORE INTO usuarios (nome_usuario, senha, cargo) VALUES (?, ?, ?)", ("cliente", "12345", "cliente"))
+conn.commit()
 
-class LojaJogos(ctk.CTk):
+class LojaJogos(ctk.CTk): 
     def __init__(self):
         super().__init__()
         self.title("Loja de Jogos")
@@ -300,4 +301,4 @@ class LojaJogos(ctk.CTk):
 
 if __name__ == "__main__":
     app = LojaJogos()
-    app.() 
+    app.rodar()

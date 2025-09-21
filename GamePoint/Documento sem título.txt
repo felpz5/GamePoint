@@ -1,0 +1,69 @@
+﻿-*/Reformulação do sistema para Game Café / Restaurante com consoles
+
+
+ Funcionalidades para Gestão do Local (Admin)
+1. Controle de mesas e estações de jogo
+* Mapear mesas com ou sem consoles.
+* Status: livre, ocupada, reservada.
+* Timer para controle do tempo de uso de consoles.
+
+2. Gerenciamento de consoles e jogos
+* Listar todos os consoles (PS5, Xbox, Switch, fliperamas, PCs).
+* Controle de disponibilidade de jogos.
+* Histórico de manutenção/reparos dos consoles.
+
+3. Pedidos e cardápio
+* Sistema de pedidos de comida e bebida por mesa.
+* Integração com cozinha/bar para avisos em tempo real.
+* Histórico de pedidos por cliente ou mesa.
+
+4. Controle de reservas
+* Reservas online e no local.
+* Escolha de mesa/console.
+* Limite de tempo por reserva.
+
+5. Pagamentos e faturamento
+* Pagamento de comida e bebida.
+* Cobrança pelo tempo de uso de consoles (ex.: R$10/hora).
+* Relatórios de faturamento diário, semanal, mensal.
+
+6. Relatórios de uso e feedback
+* Jogos mais populares.
+* Horário de pico.
+* Feedback dos clientes para melhorias.
+_______________
+
+2️⃣ Funcionalidades para Cliente 
+1. Reserva e check-in
+* Reservar mesas ou estações de jogo.
+* Verificar disponibilidade em tempo real.
+* Check-in rápido via QR code- projeto futuro
+
+1. Controle de tempo de jogo
+* Timer para cada console.
+* Alertas quando o tempo está acabando.
+* Opção de extensão de tempo via app ou com atendente.
+
+2. Cardápio e pedidos
+* Pedir comida ou bebida diretamente do tablet/telefone.
+* Status do pedido em tempo real (preparando, pronto, entregue).
+
+3. Perfil do jogador
+* Histórico de jogos jogados no local.
+* Pontuação, achievements ou ranking interno.
+* Lista de amigos e partidas futuras.
+
+4. Pagamentos
+* Pagamento integrado de comida + tempo de jogo.
+* Opções de PIX, cartão, carteira digital do app. - projeto futuro
+
+
+
+🎨 Paleta de cores da logo "P.U.P."
+Roxo de fundo: #2A0C4B
+Laranja da xícara e texto: #FF6C1A
+Amarelo dourado do gradiente do texto: #FFB22E
+Vermelho do botão (B): #F54035
+Azul do botão (X): #3EB7FF
+Roxo do controle: #6A28C9
+Ciano do detalhe do controle

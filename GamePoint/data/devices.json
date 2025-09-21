@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "tipo": "PS5",
+        "quantidade": 5,
+        "status": "disponivel"
+    },
+    {
+        "id": 2,
+        "tipo": "Xbox Series X",
+        "quantidade": 5,
+        "status": "disponivel"
+    },
+    {
+        "id": 3,
+        "tipo": "PC Gamer",
+        "quantidade": 5,
+        "status": "disponivel"
+    },
+    {
+        "id": 4,
+        "tipo": "Nintendo Switch",
+        "quantidade": 5,
+        "status": "disponivel"
+    }
+]

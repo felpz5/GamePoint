@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "nome": "Funcionário Teste 1",
+        "email": "teste1@example.com",
+        "cargo": "Atendente",
+        "data_admissao": "2023-01-01"
+    },
+    {
+        "id": 2,
+        "nome": "Funcionário Teste 2",
+        "email": "teste2@example.com",
+        "cargo": "Gerente",
+        "data_admissao": "2023-02-01"
+    },
+    {
+        "id": 3,
+        "nome": "Funcionário Teste 3",
+        "email": "teste3@example.com",
+        "cargo": "Técnico",
+        "data_admissao": "2023-03-01"
+    }
+]

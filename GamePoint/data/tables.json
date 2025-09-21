@@ -1,0 +1,202 @@
+[
+    {
+        "id": 1,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PS5"
+    },
+    {
+        "id": 2,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Xbox Series X"
+    },
+    {
+        "id": 3,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PC Gamer"
+    },
+    {
+        "id": 4,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Nintendo Switch"
+    },
+    {
+        "id": 5,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PS5"
+    },
+    {
+        "id": 6,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Xbox Series X"
+    },
+    {
+        "id": 7,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PC Gamer"
+    },
+    {
+        "id": 8,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Nintendo Switch"
+    },
+    {
+        "id": 9,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PS5"
+    },
+    {
+        "id": 10,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Xbox Series X"
+    },
+    {
+        "id": 11,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PC Gamer"
+    },
+    {
+        "id": 12,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Nintendo Switch"
+    },
+    {
+        "id": 13,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PS5"
+    },
+    {
+        "id": 14,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Xbox Series X"
+    },
+    {
+        "id": 15,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PC Gamer"
+    },
+    {
+        "id": 16,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Nintendo Switch"
+    },
+    {
+        "id": 17,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PS5"
+    },
+    {
+        "id": 18,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Xbox Series X"
+    },
+    {
+        "id": 19,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "PC Gamer"
+    },
+    {
+        "id": 20,
+        "status": "livre",
+        "time_left": 0,
+        "code": null,
+        "orders": [],
+        "start_time": null,
+        "games_played": [],
+        "console": "Nintendo Switch"
+    }
+]

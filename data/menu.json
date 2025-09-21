@@ -1,0 +1,186 @@
+[
+    {
+        "name": "Pizza Margherita",
+        "price": 25.0
+    },
+    {
+        "name": "Pizza Pepperoni",
+        "price": 28.0
+    },
+    {
+        "name": "Pizza Quatro Queijos",
+        "price": 30.0
+    },
+    {
+        "name": "Burger Clássico",
+        "price": 15.0
+    },
+    {
+        "name": "Burger Vegetariano",
+        "price": 14.0
+    },
+    {
+        "name": "Burger Duplo",
+        "price": 20.0
+    },
+    {
+        "name": "Refrigerante Lata",
+        "price": 5.0
+    },
+    {
+        "name": "Suco Natural",
+        "price": 7.0
+    },
+    {
+        "name": "Água Mineral",
+        "price": 3.0
+    },
+    {
+        "name": "Batata Frita",
+        "price": 10.0
+    },
+    {
+        "name": "Onion Rings",
+        "price": 12.0
+    },
+    {
+        "name": "Batata Doce Frita",
+        "price": 11.0
+    },
+    {
+        "name": "Salada Caesar",
+        "price": 18.0
+    },
+    {
+        "name": "Salada Grega",
+        "price": 16.0
+    },
+    {
+        "name": "Pasta Carbonara",
+        "price": 22.0
+    },
+    {
+        "name": "Pasta Bolognese",
+        "price": 20.0
+    },
+    {
+        "name": "Pasta Alfredo",
+        "price": 21.0
+    },
+    {
+        "name": "Sanduíche de Frango",
+        "price": 13.0
+    },
+    {
+        "name": "Hot Dog",
+        "price": 8.0
+    },
+    {
+        "name": "Sanduíche Vegano",
+        "price": 12.0
+    },
+    {
+        "name": "Nachos",
+        "price": 15.0
+    },
+    {
+        "name": "Quesadilla",
+        "price": 16.0
+    },
+    {
+        "name": "Taco",
+        "price": 10.0
+    },
+    {
+        "name": "Burrito",
+        "price": 14.0
+    },
+    {
+        "name": "Milkshake Chocolate",
+        "price": 9.0
+    },
+    {
+        "name": "Milkshake Morango",
+        "price": 9.0
+    },
+    {
+        "name": "Milkshake Baunilha",
+        "price": 9.0
+    },
+    {
+        "name": "Sorvete",
+        "price": 6.0
+    },
+    {
+        "name": "Bolo de Chocolate",
+        "price": 7.0
+    },
+    {
+        "name": "Cheesecake",
+        "price": 8.0
+    },
+    {
+        "name": "Pudim",
+        "price": 6.0
+    },
+    {
+        "name": "Café Expresso",
+        "price": 4.0
+    },
+    {
+        "name": "Cappuccino",
+        "price": 6.0
+    },
+    {
+        "name": "Chá Gelado",
+        "price": 5.0
+    },
+    {
+        "name": "Cerveja Lata",
+        "price": 7.0
+    },
+    {
+        "name": "Vinho Copo",
+        "price": 12.0
+    },
+    {
+        "name": "Coquetel Sem Álcool",
+        "price": 8.0
+    },
+    {
+        "name": "Wrap de Atum",
+        "price": 11.0
+    },
+    {
+        "name": "Sushi Roll",
+        "price": 20.0
+    },
+    {
+        "name": "Tempura",
+        "price": 18.0
+    },
+    {
+        "name": "Ramen",
+        "price": 22.0
+    },
+    {
+        "name": "Dim Sum",
+        "price": 15.0
+    },
+    {
+        "name": "Falafel",
+        "price": 10.0
+    },
+    {
+        "name": "Hummus com Pão",
+        "price": 9.0
+    },
+    {
+        "name": "Bruschetta",
+        "price": 8.0
+    },
+    {
+        "name": "Calzone",
+        "price": 20.0
+    }
+]
