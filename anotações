@@ -5,3 +5,6 @@ Cardápio - Imagem
 Contador - Ao iniciar uma tarefa
 
 datetime
+
+atualizar:
+Carrinho - Checkout (API cartão e pgto)
