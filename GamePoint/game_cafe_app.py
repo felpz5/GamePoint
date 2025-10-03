@@ -8,7 +8,7 @@ import time
 import sys
 from pathlib import Path
 from PIL import Image, ImageTk
-import threading  # Para carregamento assíncrono de imagens
+import threading  
 
 # Forçar o diretório de trabalho para a pasta do script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
