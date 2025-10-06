@@ -8,3 +8,11 @@ datetime
 
 atualizar:
 Carrinho - Checkout (API cartão e pgto)
+
+1. Prepare-se Antes da Apresentação
+
+Conheça o seu sistema a fundo: Teste tudo! Rode o app várias vezes para garantir que não haja bugs durante a demo. Por exemplo:
+
+Simule cenários reais: Ocupe uma mesa, faça um pedido, libere a mesa, gere relatórios.
+Verifique dependências: Certifique-se de que bibliotecas como CustomTkinter, Pillow e JSON estejam instaladas no computador da apresentação.
+Prepare dados de teste: Use os arquivos JSON padrão (como tables.json, menu.json) para demonstrar funcionalidades sem erros.
