@@ -1,0 +1,2175 @@
+import customtkinter as ctk
+import tkinter as tk
+from tkinter import messagebox, ttk
+import json
+import os
+import random
+import time
+import sys
+from pathlib import Path
+from PIL import Image, ImageTk
+import threading  
+import webbrowser
+from datetime import datetime, timedelta
+import logging
+
+# Configurar logging para depuração
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Forçar o diretório de trabalho para a pasta do script
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+# Configurar modo de aparência e tema
+ctk.set_appearance_mode("light")
+ctk.set_default_color_theme("blue")
+
+# Definir esquema de cores
+PRIMARY_PURPLE = "#8B5CF6"  
+SECONDARY_ORANGE = "#F59E0B" 
+GOLDEN_YELLOW = "#EAB308"  
+RED_BUTTON = "#EF4444"  
+BLUE_BUTTON = "#3B82F6" 
+BACKGROUND_LIGHT = "#F3E8FF"  
+PANEL_BG = "#DDD6FE" 
+ACCENT_GREEN = "#10B981"
+ACCENT_BLUE = "#06B6D4"
+ACCENT_PINK = "#EC4899"
+ACCENT_TEAL = "#14B8A6"
+ACCENT_INDIGO = "#6366F1"
+ACCENT_RED = "#DC2626"
+
+# Caminhos para arquivos de dados
+DATA_DIR = Path("data")
+TABLES_FILE = DATA_DIR / "tables.json"
+MENU_FILE = DATA_DIR / "menu.json"
+ORDERS_FILE = DATA_DIR / "orders.json"
+SALES_FILE = DATA_DIR / "sales.json"
+FEEDBACK_FILE = DATA_DIR / "feedback.json"
+EMPLOYEES_FILE = DATA_DIR / "employees.json"
+GAMES_FILE = DATA_DIR / "games.json"
+COSTS_FILE = DATA_DIR / "costs.json"
+DEVICES_FILE = DATA_DIR / "devices.json"
+PROMOCOES_FILE = DATA_DIR / "promocoes.json"
+PREMIO_FILE = DATA_DIR / "premios.json"
+IMAGES_DIR = Path("images")
+
+# Garantir que diretórios existam
+DATA_DIR.mkdir(exist_ok=True)
+IMAGES_DIR.mkdir(exist_ok=True)
+
+# Dados padrão para mesas (20 mesas)
+CONSOLE_TYPES = ["PS5", "Xbox Series X", "PC Gamer", "Nintendo Switch"]
+DEFAULT_TABLES = [
+    {"id": i, "status": "livre", "time_left": 0, "code": None, "orders": [], "start_time": None, 
+     "games_played": [], "console": CONSOLE_TYPES[(i-1) % len(CONSOLE_TYPES)], 
+     "cliente": None, "tempo_contratado": 0, "total_gasto": 0.0}
+    for i in range(1, 21)
+]
+
+# Dados padrão para menu
+DEFAULT_MENU = [
+    {"nome": "Pizza Margherita", "preco": 25.00, "categoria": "Pizzas", "descricao": "Molho de tomate, mussarela, manjericão fresco", "destaque": False, "popularidade": 8},
+    {"nome": "Pizza Pepperoni", "preco": 28.00, "categoria": "Pizzas", "descricao": "Molho de tomate, mussarela e pepperoni", "destaque": True, "popularidade": 9},
+    {"nome": "Pizza Quatro Queijos", "preco": 30.00, "categoria": "Pizzas", "descricao": "Mussarela, parmesão, gorgonzola e provolone", "destaque": False, "popularidade": 7},
+    {"nome": "Pizza Calabresa", "preco": 27.00, "categoria": "Pizzas", "descricao": "Molho de tomate, mussarela e calabresa", "destaque": False, "popularidade": 8},
+    {"nome": "Pizza Frango com Catupiry", "preco": 29.00, "categoria": "Pizzas", "descricao": "Frango desfiado e catupiry cremoso", "destaque": True, "popularidade": 9},
+    {"nome": "Burger Clássico", "preco": 15.00, "categoria": "Burgers", "descricao": "Hambúrguer 180g, queijo, alface, tomate", "destaque": False, "popularidade": 7},
+    {"nome": "Burger Vegetariano", "preco": 14.00, "categoria": "Burgers", "descricao": "Hambúrguer de grão de bico e legumes", "destaque": False, "popularidade": 6},
+    {"nome": "Burger Duplo", "preco": 20.00, "categoria": "Burgers", "descricao": "Dois hambúrgueres 180g, queijo cheddar", "destaque": True, "popularidade": 8},
+    {"nome": "Burger Bacon", "preco": 18.00, "categoria": "Burgers", "descricao": "Hambúrguer 180g, bacon crocante, queijo", "destaque": False, "popularidade": 7},
+    {"nome": "Burger Cheddar", "preco": 17.00, "categoria": "Burgers", "descricao": "Hambúrguer 180g com molho de cheddar", "destaque": False, "popularidade": 6},
+    {"nome": "Refrigerante Lata", "preco": 5.00, "categoria": "Bebidas", "descricao": "Coca-Cola, Guaraná ou Fanta Laranja", "destaque": False, "popularidade": 9},
+    {"nome": "Suco Natural", "preco": 7.00, "categoria": "Bebidas", "descricao": "Laranja, limão ou abacaxi com hortelã", "destaque": False, "popularidade": 7},
+    {"nome": "Água Mineral", "preco": 3.00, "categoria": "Bebidas", "descricao": "Com ou sem gás", "destaque": False, "popularidade": 8},
+    {"nome": "Água com Gás", "preco": 4.00, "categoria": "Bebidas", "descricao": "Água mineral gaseificada", "destaque": False, "popularidade": 5},
+    {"nome": "Chá Gelado", "preco": 5.00, "categoria": "Bebidas", "descricao": "Pêssego ou limão", "destaque": False, "popularidade": 6},
+    {"nome": "Batata Frita", "preco": 10.00, "categoria": "Acompanhamentos", "descricao": "Porção de batata frita crocante", "destaque": False, "popularidade": 8},
+    {"nome": "Onion Rings", "preco": 12.00, "categoria": "Acompanhamentos", "descricao": "Anéis de cebola empanados", "destaque": True, "popularidade": 7},
+    {"nome": "Batata Doce Frita", "preco": 11.00, "categoria": "Acompanhamentos", "descricao": "Batata doce frita com sal marinho", "destaque": False, "popularidade": 6},
+    {"nome": "Batata Rústica", "preco": 12.00, "categoria": "Acompanhamentos", "descricao": "Batata assada com ervas", "destaque": False, "popularidade": 5},
+    {"nome": "Mandioquinha Frita", "preco": 11.00, "categoria": "Acompanhamentos", "descricao": "Batata baroa frita", "destaque": False, "popularidade": 4},
+    {"nome": "Salada Caesar", "preco": 18.00, "categoria": "Saladas", "descricao": "Alface, croutons, parmesão e molho caesar", "destaque": False, "popularidade": 6},
+    {"nome": "Salada Grega", "preco": 16.00, "categoria": "Saladas", "descricao": "Tomate, pepino, azeitonas e queijo feta", "destaque": False, "popularidade": 5},
+    {"nome": "Salada Caprese", "preco": 17.00, "categoria": "Saladas", "descricao": "Tomate, mussarela de búfala e manjericão", "destaque": True, "popularidade": 7},
+    {"nome": "Salada Tropical", "preco": 15.00, "categoria": "Saladas", "descricao": "Alface, manga e frutas secas", "destaque": False, "popularidade": 5},
+    {"nome": "Pasta Carbonara", "preco": 22.00, "categoria": "Massas", "descricao": "Espaguete com molho carbonara", "destaque": False, "popularidade": 7},
+    {"nome": "Pasta Bolognese", "preco": 20.00, "categoria": "Massas", "descricao": "Espaguete com molho à bolonhesa", "destaque": False, "popularidade": 6},
+    {"nome": "Pasta Alfredo", "preco": 21.00, "categoria": "Massas", "descricao": "Fettuccine com molho alfredo", "destaque": False, "popularidade": 5},
+    {"nome": "Pasta Primavera", "preco": 23.00, "categoria": "Massas", "descricao": "Espaguete com legumes frescos", "destaque": True, "popularidade": 6},
+    {"nome": "Sanduíche de Frango", "preco": 13.00, "categoria": "Sanduíches", "descricao": "Frango grelhado com alface e tomate", "destaque": False, "popularidade": 5},
+    {"nome": "Hot Dog", "preco": 8.00, "categoria": "Sanduíches", "descricao": "Pão, salsicha e molhos", "destaque": False, "popularidade": 4},
+    {"nome": "Sanduíche Vegano", "preco": 12.00, "categoria": "Sanduíches", "descricao": "Pão integral com vegetais grelhados", "destaque": False, "popularidade": 4},
+    {"nome": "Sanduíche de Carne", "preco": 14.00, "categoria": "Sanduíches", "descricao": "Carne bovina, queijo e vegetais", "destaque": False, "popularidade": 5},
+    {"nome": "Nachos", "preco": 15.00, "categoria": "Entradas", "descricao": "Tortilhas com queijo derretido e guacamole", "destaque": True, "popularidade": 8},
+    {"nome": "Quesadilla", "preco": 16.00, "categoria": "Entradas", "descricao": "Tortilla com queijo e frango", "destaque": False, "popularidade": 6},
+    {"nome": "Taco", "preco": 10.00, "categoria": "Entradas", "descricao": "Carne moída, alface e queijo", "destaque": False, "popularidade": 5},
+    {"nome": "Brownie", "preco": 8.00, "categoria": "Sobremesas", "descricao": "Brownie de chocolate com sorvete", "destaque": True, "popularidade": 9},
+    {"nome": "Cheesecake", "preco": 12.00, "categoria": "Sobremesas", "descricao": "Cheesecake de frutas vermelhas", "destaque": False, "popularidade": 7},
+    {"nome": "Milk-shake", "preco": 14.00, "categoria": "Sobremesas", "descricao": "Chocolate, morango ou baunilha", "destaque": True, "popularidade": 8},
+]
+
+# Dados padrão para promoções
+DEFAULT_PROMOCOES = [
+    {"id": 1, "nome": "Combo Gamer", "descricao": "1 Pizza + 2 Refrigerantes", "preco_original": 35.00, "preco_promocional": 28.00, "validade": "2024-12-31", "ativa": True},
+    {"id": 2, "nome": "Burger + Batata", "descricao": "Qualquer burger + batata frita", "preco_original": 25.00, "preco_promocional": 20.00, "validade": "2024-12-31", "ativa": True},
+    {"id": 3, "nome": "Noite de Pizza", "descricao": "2 Pizzas grandes", "preco_original": 60.00, "preco_promocional": 45.00, "validade": "2024-12-31", "ativa": True},
+    {"id": 4, "nome": "Combo Família", "descricao": "4 Burgers + 4 Refrigerantes", "preco_original": 80.00, "preco_promocional": 65.00, "validade": "2024-12-31", "ativa": True},
+]
+
+# Dados padrão para prêmios
+DEFAULT_PREMIOS = [
+    {"id": 1, "nome": "30 Minutos Grátis", "pontos": 100, "descricao": "30 minutos extras de jogo", "disponivel": True},
+    {"id": 2, "nome": "Refrigerante Grátis", "pontos": 50, "descricao": "Refrigerante lata", "disponivel": True},
+    {"id": 3, "nome": "Batata Frita", "pontos": 70, "descricao": "Porção de batata frita", "disponivel": True},
+    {"id": 4, "nome": "1 Hora Grátis", "pontos": 180, "descricao": "1 hora extra de jogo", "disponivel": True},
+    {"id": 5, "nome": "Combo Gamer", "pontos": 250, "descricao": "Pizza + 2 refrigerantes", "disponivel": True},
+]
+
+# Dados padrão para funcionários
+DEFAULT_EMPLOYEES = [
+    {"id": 1, "nome": "João Silva", "email": "joao@example.com", "cargo": "Atendente", "data_admissao": "2023-01-01", "salario": 1800.00, "status": "ativo", "telefone": "(11) 99999-9999"},
+    {"id": 2, "nome": "Maria Santos", "email": "maria@example.com", "cargo": "Gerente", "data_admissao": "2023-02-01", "salario": 3500.00, "status": "ativo", "telefone": "(11) 98888-8888"},
+    {"id": 3, "nome": "Pedro Oliveira", "email": "pedro@example.com", "cargo": "Técnico", "data_admissao": "2023-03-01", "salario": 2200.00, "status": "ativo", "telefone": "(11) 97777-7777"},
+    {"id": 4, "nome": "Ana Costa", "email": "ana@example.com", "cargo": "Atendente", "data_admissao": "2023-04-01", "salario": 1800.00, "status": "ativo", "telefone": "(11) 96666-6666"},
+]
+
+# Dados padrão para jogos
+DEFAULT_GAMES = [
+    {"nome": "Fortnite", "jogadas": 156, "categoria": "Battle Royale", "popularidade": 9},
+    {"nome": "Minecraft", "jogadas": 142, "categoria": "Sandbox", "popularidade": 8},
+    {"nome": "Call of Duty", "jogadas": 128, "categoria": "FPS", "popularidade": 9},
+    {"nome": "Among Us", "jogadas": 95, "categoria": "Party", "popularidade": 7},
+    {"nome": "FIFA 24", "jogadas": 134, "categoria": "Esporte", "popularidade": 8},
+]
+
+# Dados padrão para custos
+DEFAULT_COSTS = [
+    {"data": "2024-01-01", "valor": 500.00, "categoria": "Aluguel", "descricao": "Aluguel do espaço"},
+    {"data": "2024-01-05", "valor": 1200.00, "categoria": "Salários", "descricao": "Pagamento de funcionários"},
+    {"data": "2024-01-10", "valor": 800.00, "categoria": "Suprimentos", "descricao": "Compra de alimentos"},
+    {"data": "2024-01-15", "valor": 300.00, "categoria": "Manutenção", "descricao": "Manutenção dos consoles"},
+]
+
+# Dados padrão para dispositivos
+DEFAULT_DEVICES = [
+    {"id": 1, "tipo": "PS5", "quantidade": 5, "status": "disponivel", "manutencao": 0},
+    {"id": 2, "tipo": "Xbox Series X", "quantidade": 5, "status": "disponivel", "manutencao": 0},
+    {"id": 3, "tipo": "PC Gamer", "quantidade": 5, "status": "disponivel", "manutencao": 1},
+    {"id": 4, "tipo": "Nintendo Switch", "quantidade": 5, "status": "disponivel", "manutencao": 0},
+]
+
+# Cache global para imagens
+IMAGE_CACHE = {}
+
+# FUNÇÕES AUXILIARES PARA JSON
+def safe_load_json(caminho_arquivo, dados_padrao=None):
+    try:
+        with open(caminho_arquivo, "r", encoding="utf-8") as f:
+            dados = json.load(f)
+        if caminho_arquivo.name == "tables.json" and len(dados) < 20:
+            print("Atualizando mesas para 20.")
+            mesas_adicionais = DEFAULT_TABLES[len(dados):]
+            dados.extend(mesas_adicionais)
+            safe_save_json(caminho_arquivo, dados)
+        return dados
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"Erro no JSON em {caminho_arquivo}: {e}. Recriando com padrões.")
+        if dados_padrao is not None:
+            safe_save_json(caminho_arquivo, dados_padrao)
+        return dados_padrao or []
+
+def safe_save_json(caminho_arquivo, dados):
+    try:
+        with open(caminho_arquivo, "w", encoding="utf-8") as f:
+            json.dump(dados, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Erro ao salvar {caminho_arquivo}: {e}")
+        messagebox.showerror("Erro", f"Falha ao salvar dados: {e}")
+
+# Inicializar arquivos JSON com dados padrão
+def inicializar_arquivos():
+    safe_save_json(TABLES_FILE, DEFAULT_TABLES)
+    safe_save_json(MENU_FILE, DEFAULT_MENU)
+    safe_save_json(ORDERS_FILE, [])
+    safe_save_json(SALES_FILE, [])
+    safe_save_json(FEEDBACK_FILE, [])
+    safe_save_json(EMPLOYEES_FILE, DEFAULT_EMPLOYEES)
+    safe_save_json(GAMES_FILE, DEFAULT_GAMES)
+    safe_save_json(COSTS_FILE, DEFAULT_COSTS)
+    safe_save_json(DEVICES_FILE, DEFAULT_DEVICES)
+    safe_save_json(PROMOCOES_FILE, DEFAULT_PROMOCOES)
+    safe_save_json(PREMIO_FILE, DEFAULT_PREMIOS)
+
+# CLASSE PRINCIPAL DA APLICAÇÃO
+class GameCafeApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        
+        # Inicializar arquivos primeiro
+        inicializar_arquivos()
+        
+        self.title("P.U.P. - The Power-Up Palace")
+        self.geometry("1300x800")
+        self.center_window()
+
+        # Logo principal
+        try:
+            caminho_logo = IMAGES_DIR / "content-Photoroom.png"
+            print(f"Tentando carregar logo: {caminho_logo}")
+            if caminho_logo.exists():
+                imagem_logo = Image.open(caminho_logo).resize((200, 200), Image.LANCZOS)
+                foto_logo = ctk.CTkImage(light_image=imagem_logo, size=(250, 250))
+                self.logo_label = ctk.CTkLabel(self, image=foto_logo, text="")
+            else:
+                raise FileNotFoundError("Logo não encontrada")
+        except Exception as e:
+            print(f"Erro ao carregar logo {caminho_logo}: {e}")
+            self.logo_label = ctk.CTkLabel(self, text="🎮 P.U.P.", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE)
+        self.logo_label.pack(pady=20)
+
+        self.welcome_label = ctk.CTkLabel(self, text="Bem-vindo ao P.U.P.!", font=("Arial", 36, "bold"), text_color=SECONDARY_ORANGE)
+        self.welcome_label.pack(pady=30)
+
+        # Frame dos botões principais
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.pack(pady=20)
+
+        self.client_button = ctk.CTkButton(button_frame, text="🎮 Área do Cliente", command=self.abrir_area_cliente, 
+                                         fg_color=PRIMARY_PURPLE, hover_color=BLUE_BUTTON, text_color="white", 
+                                         corner_radius=20, font=("Arial", 18), width=350, height=70,
+                                         border_color=GOLDEN_YELLOW, border_width=3)
+        self.client_button.grid(row=0, column=0, padx=20, pady=15)
+
+        self.employee_button = ctk.CTkButton(button_frame, text="👨‍💼 Área do Funcionário", command=self.abrir_area_funcionario, 
+                                           fg_color=ACCENT_TEAL, hover_color=ACCENT_BLUE, text_color="white", 
+                                           corner_radius=20, font=("Arial", 18), width=350, height=70,
+                                           border_color=PRIMARY_PURPLE, border_width=3)
+        self.employee_button.grid(row=0, column=1, padx=20, pady=15)
+
+        self.admin_button = ctk.CTkButton(button_frame, text="⚙️ Área do Admin", command=self.abrir_area_admin, 
+                                        fg_color=SECONDARY_ORANGE, hover_color=ACCENT_RED, text_color="white", 
+                                        corner_radius=20, font=("Arial", 18), width=350, height=70,
+                                        border_color=ACCENT_PINK, border_width=3)
+        self.admin_button.grid(row=0, column=2, padx=20, pady=15)
+
+        # Status do sistema
+        status_frame = ctk.CTkFrame(self, fg_color=PANEL_BG, corner_radius=15)
+        status_frame.pack(pady=20, padx=100, fill="x")
+        
+        mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+        mesas_ocupadas = sum(1 for mesa in mesas if mesa["status"] == "ocupada")
+        
+        status_text = f"📊 Status: {mesas_ocupadas}/20 Mesas Ocupadas | 💰 Vendas Hoje: R$ {self.calcular_vendas_hoje():.2f} | ⭐ Avaliação: {self.calcular_avaliacao_media():.1f}/5.0"
+        status_label = ctk.CTkLabel(status_frame, text=status_text, font=("Arial", 14), text_color=PRIMARY_PURPLE)
+        status_label.pack(pady=10)
+
+        # Variáveis de frames
+        self.client_frame = None
+        self.employee_frame = None
+        self.admin_frame = None
+        self.mesa_atual = None
+        self.timer_id = None
+        self.mesas_timer_id = None
+        self.pedidos_timer_id = None
+        self.mesa_selecionada = None
+        self.carrinho = []
+        self.categorias_menu = ["Todos", "Destaques", "Mais Populares", "Pizzas", "Burgers", "Bebidas", "Acompanhamentos", "Saladas", "Massas", "Sanduíches", "Entradas", "Sobremesas"]
+        self.pontos_cliente = 0
+        self.mesa_widgets = {}
+        self.row_frames = []
+        self.info_mesa_label = None
+
+        threading.Thread(target=self.pre_carregar_imagens, daemon=True).start()
+
+    def center_window(self):
+        self.update_idletasks()
+        width = self.winfo_width()
+        height = self.winfo_height()
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry(f'{width}x{height}+{x}+{y}')
+
+    def calcular_vendas_hoje(self):
+        try:
+            vendas = safe_load_json(SALES_FILE, [])
+            hoje = datetime.now().strftime("%Y-%m-%d")
+            total_hoje = sum(venda["valor"] for venda in vendas if venda.get("data") == hoje)
+            return total_hoje
+        except:
+            return 0.0
+
+    def calcular_avaliacao_media(self):
+        try:
+            feedbacks = safe_load_json(FEEDBACK_FILE, [])
+            avaliacoes = [fb.get("avaliacao", 5) for fb in feedbacks if fb.get("avaliacao") is not None]
+            if not avaliacoes:
+                return 5.0
+            return sum(avaliacoes) / len(avaliacoes)
+        except:
+            return 5.0
+
+    def pre_carregar_imagens(self):
+        """Carrega imagens em uma thread, com cache e gerenciamento de memória."""
+        def load_images():
+            menu = safe_load_json(MENU_FILE, [])
+            max_image_size = (120, 120)  # Tamanho fixo para imagens
+            max_images = 50  # Limite de imagens para evitar sobrecarga
+
+            for index, item in enumerate(menu[:max_images]):
+                try:
+                    nome_limpo = item['nome'].replace(' ', '_').replace('ç', 'c').replace('ã', 'a').replace('é', 'e').replace('ô', 'o')
+                    caminho_imagem = IMAGES_DIR / f"{nome_limpo}.jpg"
+                    
+                    if caminho_imagem.exists() and caminho_imagem not in IMAGE_CACHE:
+                        with Image.open(caminho_imagem) as img:
+                            # Redimensionar imagem com qualidade otimizada
+                            img = img.resize(max_image_size, Image.LANCZOS)
+                            foto_item = ctk.CTkImage(light_image=img, size=max_image_size)
+                            IMAGE_CACHE[item['nome']] = foto_item
+                            logging.info(f"Imagem carregada e cacheada: {caminho_imagem}")
+                    else:
+                        IMAGE_CACHE[item['nome']] = None
+                        logging.debug(f"Imagem não encontrada ou já cacheada: {caminho_imagem}")
+                except Exception as e:
+                    IMAGE_CACHE[item['nome']] = None
+                    logging.error(f"Erro ao carregar {caminho_imagem}: {e}")
+
+        # Iniciar thread para carregamento
+        threading.Thread(target=load_images, daemon=True).start()
+
+    # --- Métodos de Navegação ---
+    def mostrar_frame(self, frame):
+        # Esconde os elementos principais
+        self.logo_label.pack_forget()
+        self.welcome_label.pack_forget()
+        for widget in self.winfo_children():
+            # Esconde apenas os widgets principais, mantendo o widget de status
+            if widget not in [frame] and isinstance(widget, ctk.CTkFrame) and "Status" not in widget.winfo_name(): 
+                widget.pack_forget()
+            elif widget not in [frame]:
+                 widget.pack_forget()
+                 
+        # Empacota o novo frame
+        self.after(100, lambda: frame.pack(fill="both", expand=True))
+
+    def voltar_ao_menu_principal(self):
+        self.cancelar_todos_timers()
+        
+        if self.client_frame:
+            self.client_frame.pack_forget()
+        if self.employee_frame:
+            self.employee_frame.pack_forget()
+        if self.admin_frame:
+            self.admin_frame.pack_forget()
+        
+        # Chama a função para re-empacotar os elementos principais após um pequeno atraso
+        self.after(100, self._empacotar_elementos_principais)
+
+    def _empacotar_elementos_principais(self):
+        self.logo_label.pack(pady=20)
+        self.welcome_label.pack(pady=30)
+        
+        # Frame dos botões principais
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.pack(pady=20)
+
+        self.client_button = ctk.CTkButton(button_frame, text="🎮 Área do Cliente", command=self.abrir_area_cliente, 
+                                         fg_color=PRIMARY_PURPLE, hover_color=BLUE_BUTTON, text_color="white", 
+                                         corner_radius=20, font=("Arial", 18), width=350, height=70,
+                                         border_color=GOLDEN_YELLOW, border_width=3)
+        self.client_button.grid(row=0, column=0, padx=20, pady=15)
+
+        self.employee_button = ctk.CTkButton(button_frame, text="👨‍💼 Área do Funcionário", command=self.abrir_area_funcionario, 
+                                           fg_color=ACCENT_TEAL, hover_color=ACCENT_BLUE, text_color="white", 
+                                           corner_radius=20, font=("Arial", 18), width=350, height=70,
+                                           border_color=PRIMARY_PURPLE, border_width=3)
+        self.employee_button.grid(row=0, column=1, padx=20, pady=15)
+
+        self.admin_button = ctk.CTkButton(button_frame, text="⚙️ Área do Admin", command=self.abrir_area_admin, 
+                                        fg_color=SECONDARY_ORANGE, hover_color=ACCENT_RED, text_color="white", 
+                                        corner_radius=20, font=("Arial", 18), width=350, height=70,
+                                        border_color=ACCENT_PINK, border_width=3)
+        self.admin_button.grid(row=0, column=2, padx=20, pady=15)
+        
+        # Status do sistema
+        status_frame = ctk.CTkFrame(self, fg_color=PANEL_BG, corner_radius=15)
+        status_frame.pack(pady=20, padx=100, fill="x")
+        
+        mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+        mesas_ocupadas = sum(1 for mesa in mesas if mesa["status"] == "ocupada")
+        
+        status_text = f"📊 Status: {mesas_ocupadas}/20 Mesas Ocupadas | 💰 Vendas Hoje: R$ {self.calcular_vendas_hoje():.2f} | ⭐ Avaliação: {self.calcular_avaliacao_media():.1f}/5.0"
+        status_label = ctk.CTkLabel(status_frame, text=status_text, font=("Arial", 14), text_color=PRIMARY_PURPLE)
+        status_label.pack(pady=10)
+
+
+    def cancelar_todos_timers(self):
+        timers = [self.mesas_timer_id, self.pedidos_timer_id, self.timer_id]
+        for tid in timers:
+            if tid:
+                self.after_cancel(tid)
+        self.mesas_timer_id = None
+        self.pedidos_timer_id = None
+        self.timer_id = None
+
+    # --- Área do Cliente ---
+
+    def abrir_area_cliente(self):
+        if self.client_frame is None:
+            self.client_frame = ctk.CTkFrame(self, fg_color=BACKGROUND_LIGHT, corner_radius=0)
+            
+            # Header moderno
+            header_frame = ctk.CTkFrame(self.client_frame, fg_color=PRIMARY_PURPLE, corner_radius=0, height=100)
+            header_frame.pack(fill="x")
+            header_frame.pack_propagate(False)
+            
+            left_header = ctk.CTkFrame(header_frame, fg_color="transparent")
+            left_header.pack(side="left", fill="both", expand=True, padx=20)
+
+            ctk.CTkLabel(left_header, text="🎮", font=("Arial", 24)).pack(side="left", pady=20)
+            titulo_cliente = ctk.CTkLabel(left_header, text="Área do Cliente", font=("Arial", 28, "bold"), text_color="white")
+            titulo_cliente.pack(side="left", padx=15, pady=20)
+            
+            self.rotulo_mesa = ctk.CTkLabel(left_header, text="Mesa: Não logado", font=("Arial", 18), text_color=GOLDEN_YELLOW)
+            self.rotulo_mesa.pack(side="left", padx=30)
+            
+            self.rotulo_timer = ctk.CTkLabel(left_header, text="Tempo: 00:00:00", font=("Arial", 18), text_color=ACCENT_RED)
+            self.rotulo_timer.pack(side="left", padx=30)
+            
+            right_header = ctk.CTkFrame(header_frame, fg_color="transparent")
+            right_header.pack(side="right", padx=20, pady=20)
+            
+            botao_voltar = ctk.CTkButton(right_header, text="🏠 Voltar", command=self.voltar_ao_menu_principal, 
+                                         fg_color=RED_BUTTON, text_color="white", corner_radius=10, width=120, height=40, font=("Arial", 14, "bold"))
+            botao_voltar.pack(side="left", padx=10)
+
+            # Sistema de abas moderno
+            self.tabview = ctk.CTkTabview(self.client_frame, fg_color=BACKGROUND_LIGHT, 
+                                          segmented_button_fg_color=PRIMARY_PURPLE, 
+                                          segmented_button_selected_color=ACCENT_BLUE, 
+                                          segmented_button_unselected_color=PRIMARY_PURPLE)
+            self.tabview.pack(fill="both", expand=True, padx=20, pady=20)
+
+            # Criar abas
+            self.tabview.add(" 🏠 Início ")
+            self.tabview.add(" 🍕 Cardápio ")
+            self.tabview.add(" 🔥 Promoções ")
+            self.tabview.add(" 🎁 Prêmios ")
+            self.tabview.add(" 💰 Checkout ")
+            self.tabview.add(" ⭐ Avaliar ")
+
+            # Configurar cada aba
+            self.configurar_aba_inicio()
+            self.configurar_aba_cardapio()
+            self.configurar_aba_promocoes()
+            self.configurar_aba_premios()
+            self.configurar_aba_checkout()
+            self.configurar_aba_avaliar()
+
+        self.mostrar_frame(self.client_frame)
+        self.mesa_atual = None
+        self.rotulo_mesa.configure(text="Mesa: Não logado")
+        self.rotulo_timer.configure(text="Tempo: 00:00:00")
+        self.tabview.set(" 🏠 Início ")
+        self.carrinho = []
+        self.atualizar_resumo_pedido()
+        self.atualizar_info_mesa()
+
+    def configurar_aba_inicio(self):
+        aba = self.tabview.tab(" 🏠 Início ")
+        
+        # Container principal com scroll
+        scroll_frame = ctk.CTkScrollableFrame(aba, fg_color="transparent")
+        scroll_frame.pack(fill="both", expand=True)
+
+        # Banner de boas-vindas
+        banner_frame = ctk.CTkFrame(scroll_frame, fg_color=PRIMARY_PURPLE, corner_radius=20, height=200)
+        banner_frame.pack(fill="x", padx=20, pady=20)
+        banner_frame.pack_propagate(False)
+        
+        banner_content = ctk.CTkFrame(banner_frame, fg_color="transparent")
+        banner_content.pack(expand=True, fill="both", padx=40, pady=30)
+        
+        ctk.CTkLabel(banner_content, text="Bem-vindo, Jogador!", font=("Arial", 36, "bold"), text_color="white").pack(anchor="w")
+        ctk.CTkLabel(banner_content, text="Insira o código da sua mesa para começar a jogar e pedir no nosso cardápio exclusivo!", 
+                     font=("Arial", 16), text_color=GOLDEN_YELLOW).pack(anchor="w")
+
+        # Informações da Mesa
+        info_mesa_frame = ctk.CTkFrame(scroll_frame, fg_color=PANEL_BG, corner_radius=15)
+        info_mesa_frame.pack(pady=20, padx=20, fill="x")
+        
+        ctk.CTkLabel(info_mesa_frame, text="📋 Informações da Mesa", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE).pack(pady=15)
+        
+        self.info_mesa_label = ctk.CTkLabel(info_mesa_frame, text="Nenhuma mesa selecionada.", font=("Arial", 16), text_color="gray")
+        self.info_mesa_label.pack(pady=10)
+
+        # Login
+        login_frame = ctk.CTkFrame(scroll_frame, fg_color=PANEL_BG, corner_radius=15)
+        login_frame.pack(pady=20, padx=20, fill="x")
+        
+        ctk.CTkLabel(login_frame, text="🔑 Acesso à Mesa", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE).pack(pady=15)
+        
+        self.campo_codigo = ctk.CTkEntry(login_frame, placeholder_text="Código da Mesa (ex: B4F7)", width=300, height=40, font=("Arial", 16))
+        self.campo_codigo.pack(pady=10)
+        
+        botao_login = ctk.CTkButton(login_frame, text="Logar", command=self.login_cliente, 
+                                    fg_color=ACCENT_GREEN, hover_color="#0D9465", text_color="white", 
+                                    corner_radius=10, height=40, font=("Arial", 16, "bold"))
+        botao_login.pack(pady=10)
+
+        # Destaques do Cardápio (Exibição)
+        destaques_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
+        destaques_frame.pack(pady=20, padx=20, fill="x")
+        
+        ctk.CTkLabel(destaques_frame, text="✨ Destaques do Cardápio", font=("Arial", 24, "bold"), text_color=SECONDARY_ORANGE).pack(anchor="w", pady=10)
+        
+        self.frame_destaques_grid = ctk.CTkFrame(destaques_frame, fg_color="transparent")
+        self.frame_destaques_grid.pack(fill="x")
+        
+        self.carregar_destaques_inicio()
+        
+    def carregar_destaques_inicio(self):
+        for widget in self.frame_destaques_grid.winfo_children():
+            widget.destroy()
+            
+        menu = safe_load_json(MENU_FILE, DEFAULT_MENU)
+        destaques = [item for item in menu if item.get("destaque", False)][:3] # Limita a 3 destaques
+        
+        for i, item in enumerate(destaques):
+            item_frame = ctk.CTkFrame(self.frame_destaques_grid, fg_color=PANEL_BG, corner_radius=15, width=250)
+            item_frame.grid(row=0, column=i, padx=10, pady=10, sticky="nsew")
+            
+            # Placeholder para imagem
+            placeholder = ctk.CTkFrame(item_frame, fg_color=PRIMARY_PURPLE, width=200, height=100, corner_radius=10)
+            placeholder.pack(pady=10)
+            ctk.CTkLabel(placeholder, text="Item em Destaque", font=("Arial", 14, "bold"), text_color="white").pack(expand=True)
+            
+            ctk.CTkLabel(item_frame, text=item['nome'], font=("Arial", 18, "bold"), text_color=PRIMARY_PURPLE).pack(pady=5)
+            ctk.CTkLabel(item_frame, text=item['descricao'][:50] + "...", font=("Arial", 12), wraplength=200).pack(pady=2)
+            ctk.CTkLabel(item_frame, text=f"R$ {item['preco']:.2f}", font=("Arial", 20, "bold"), text_color=SECONDARY_ORANGE).pack(pady=5)
+
+        self.frame_destaques_grid.grid_columnconfigure((0, 1, 2), weight=1)
+
+    def atualizar_info_mesa(self):
+        if self.mesa_atual:
+            tempo_restante = max(0, self.mesa_atual.get("tempo_contratado", 0) * 60 - (time.time() - self.mesa_atual.get("start_time", time.time())))
+            horas, resto = divmod(tempo_restante, 3600)
+            minutos, segundos = divmod(resto, 60)
+            texto = (
+                f"Mesa: {self.mesa_atual['id']}\n"
+                f"Código: {self.mesa_atual['code']}\n"
+                f"Console: {self.mesa_atual['console']}\n"
+                f"Cliente: {self.mesa_atual.get('cliente', 'N/A')}\n"
+                f"Tempo Restante: {int(horas):02d}:{int(minutos):02d}:{int(segundos):02d}\n"
+                f"Total Gasto: R$ {self.mesa_atual.get('total_gasto', 0.0):.2f}"
+            )
+            self.info_mesa_label.configure(text=texto, text_color=PRIMARY_PURPLE)
+        else:
+            self.info_mesa_label.configure(text="Nenhuma mesa selecionada.", text_color="gray")
+
+    def configurar_aba_cardapio(self):
+        aba = self.tabview.tab(" 🍕 Cardápio ")
+        
+        # Controles (Filtro e Busca)
+        controles_frame = ctk.CTkFrame(aba, fg_color=PANEL_BG, corner_radius=15)
+        controles_frame.pack(fill="x", padx=20, pady=10)
+        
+        # Filtro de Categoria
+        ctk.CTkLabel(controles_frame, text="Filtrar por Categoria:", font=("Arial", 14), text_color=PRIMARY_PURPLE).pack(side="left", padx=15, pady=10)
+        self.filtro_categoria = ctk.CTkComboBox(controles_frame, values=self.categorias_menu, command=self.filtrar_menu, width=200)
+        self.filtro_categoria.set("Todos")
+        self.filtro_categoria.pack(side="left", padx=10, pady=10)
+        
+        # Campo de Busca
+        self.campo_busca = ctk.CTkEntry(controles_frame, placeholder_text="Buscar item...", width=300)
+        self.campo_busca.pack(side="right", padx=15, pady=10)
+        self.campo_busca.bind("<Return>", self.buscar_item)
+
+        # Grade do Cardápio
+        self.frame_cardapio = ctk.CTkScrollableFrame(aba, fg_color="transparent")
+        self.frame_cardapio.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        self.carregar_cardapio()
+
+    def carregar_cardapio(self, event=None):
+        """Carrega o cardápio com reutilização de widgets e imagens cacheadas."""
+        # Evitar destruir widgets desnecessariamente
+        existing_frames = {w.winfo_name(): w for w in self.frame_cardapio.winfo_children() if w.winfo_name().startswith("frame_")}
+        
+        menu = safe_load_json(MENU_FILE, DEFAULT_MENU)
+        categoria_selecionada = self.filtro_categoria.get()
+        termo_busca = self.campo_busca.get().lower().strip()
+        
+        if categoria_selecionada == "Destaques":
+            itens_filtrados = [item for item in menu if item.get("destaque", False)]
+        elif categoria_selecionada == "Mais Populares":
+            itens_filtrados = sorted(menu, key=lambda x: x.get("popularidade", 0), reverse=True)
+        elif categoria_selecionada != "Todos":
+            itens_filtrados = [item for item in menu if item.get("categoria") == categoria_selecionada]
+        else:
+            itens_filtrados = menu
+            
+        if termo_busca:
+            itens_filtrados = [item for item in itens_filtrados if termo_busca in item['nome'].lower() or termo_busca in item.get('descricao', '').lower()]
+
+        cols = 4
+        required_frames = len(itens_filtrados)
+        current_frames = len(existing_frames)
+
+        # Reutilizar ou criar frames conforme necessário
+        for i in range(max(required_frames, current_frames)):
+            row = i // cols
+            col = i % cols
+            item = itens_filtrados[i] if i < len(itens_filtrados) else None
+
+            frame_key = f"frame_{row}_{col}"
+            frame_item = existing_frames.get(frame_key)
+
+            if item:
+                if frame_item is None:
+                    # Criar novo frame
+                    frame_item = ctk.CTkFrame(self.frame_cardapio, fg_color="white", corner_radius=10, border_color=PRIMARY_PURPLE, border_width=1.5)
+                    frame_item.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+                    frame_item._name = frame_key  # Identificador único para reutilização
+
+                    # Widgets internos
+                    imagem = IMAGE_CACHE.get(item['nome'])
+                    if imagem:
+                        rotulo_imagem = ctk.CTkLabel(frame_item, image=imagem, text="")
+                        rotulo_imagem.pack(pady=10)
+                    else:
+                        placeholder = ctk.CTkFrame(frame_item, fg_color=PANEL_BG, width=120, height=120, corner_radius=10)
+                        placeholder.pack(pady=10)
+                        ctk.CTkLabel(placeholder, text="Sem imagem", font=("Arial", 10), text_color="gray").pack(expand=True)
+
+                    rotulo_nome = ctk.CTkLabel(frame_item, text=item['nome'], text_color="black", font=("Arial", 14, "bold"), wraplength=200)
+                    rotulo_nome.pack(pady=5)
+                    rotulo_descricao = ctk.CTkLabel(frame_item, text=item.get('descricao', '')[:50] + "...", text_color="gray", font=("Arial", 10), wraplength=200)
+                    rotulo_descricao.pack(pady=2)
+                    rotulo_preco = ctk.CTkLabel(frame_item, text=f"R$ {item['preco']:.2f}", text_color=SECONDARY_ORANGE, font=("Arial", 16, "bold"))
+                    rotulo_preco.pack(pady=5)
+                    botao_adicionar = ctk.CTkButton(frame_item, text="Adicionar", command=lambda it=item: self.adicionar_ao_carrinho(it), 
+                                                    fg_color=PRIMARY_PURPLE, text_color="white", width=120, height=35, corner_radius=8, font=("Arial", 12))
+                    botao_adicionar.pack(pady=10)
+                else:
+                    # Reutilizar frame existente, atualizando apenas os dados
+                    children = frame_item.winfo_children()
+                    imagem_widget = children[0] if children else None
+                    
+                    if isinstance(imagem_widget, ctk.CTkLabel) and imagem_widget.cget("image"):
+                        imagem = IMAGE_CACHE.get(item['nome'])
+                        if imagem:
+                            imagem_widget.configure(image=imagem)
+                    elif isinstance(imagem_widget, ctk.CTkFrame):
+                        # Atualizar placeholder se necessário
+                        imagem = IMAGE_CACHE.get(item['nome'])
+                        if imagem:
+                            imagem_widget.destroy()
+                            rotulo_imagem = ctk.CTkLabel(frame_item, image=imagem, text="")
+                            rotulo_imagem.pack(pady=10)
+                    
+                    # Atualizar labels
+                    for widget in children[1:]:
+                        if isinstance(widget, ctk.CTkLabel) and widget.cget("text") == item['nome']:
+                            widget.configure(text=item['nome'])
+                        elif isinstance(widget, ctk.CTkLabel) and "..." in widget.cget("text"):
+                            widget.configure(text=item.get('descricao', '')[:50] + "...")
+                        elif isinstance(widget, ctk.CTkLabel) and widget.cget("text").startswith("R$"):
+                            widget.configure(text=f"R$ {item['preco']:.2f}")
+                        elif isinstance(widget, ctk.CTkButton):
+                            widget.configure(command=lambda it=item: self.adicionar_ao_carrinho(it))
+            else:
+                # Remover frames excedentes
+                if frame_item:
+                    frame_item.destroy()
+
+        # Configurar colunas
+        for c in range(cols):
+            self.frame_cardapio.grid_columnconfigure(c, weight=1)
+
+        if not itens_filtrados:
+            ctk.CTkLabel(self.frame_cardapio, text="Nenhum item encontrado nesta categoria/busca.", font=("Arial", 16), text_color="gray").pack(pady=50)
+
+    def filtrar_menu(self, categoria):
+        self.carregar_cardapio()
+
+    def buscar_item(self, event):
+        self.carregar_cardapio()
+
+    def adicionar_ao_carrinho(self, item):
+        self.carrinho.append(item)
+        messagebox.showinfo("Carrinho", f"{item['nome']} adicionado ao carrinho.")
+        self.tabview.set(" 💰 Checkout ")
+        self.atualizar_resumo_pedido()
+
+    def remover_do_carrinho(self, index):
+        if 0 <= index < len(self.carrinho):
+            item_removido = self.carrinho.pop(index)
+            messagebox.showinfo("Carrinho", f"{item_removido['nome']} removido do carrinho.")
+            self.atualizar_resumo_pedido()
+
+    def configurar_aba_promocoes(self):
+        aba = self.tabview.tab(" 🔥 Promoções ")
+        
+        # Header estiloso
+        header_frame = ctk.CTkFrame(aba, fg_color=ACCENT_PINK, corner_radius=15, height=120)
+        header_frame.pack(fill="x", padx=20, pady=20)
+        header_frame.pack_propagate(False)
+        
+        content_frame = ctk.CTkFrame(header_frame, fg_color="transparent")
+        content_frame.pack(expand=True, fill="both", padx=30, pady=20)
+        
+        ctk.CTkLabel(content_frame, text="🔥 Promoções Exclusivas!", font=("Arial", 28, "bold"), text_color="white").pack(anchor="w")
+        ctk.CTkLabel(content_frame, text="Aproveite nossas ofertas imperdíveis", font=("Arial", 16), text_color="white").pack(anchor="w")
+
+        self.frame_promocoes = ctk.CTkScrollableFrame(aba, fg_color="transparent")
+        self.frame_promocoes.pack(fill="both", expand=True, padx=20, pady=10)
+        self.carregar_promocoes()
+
+    def carregar_promocoes(self):
+        for widget in self.frame_promocoes.winfo_children():
+            widget.destroy()
+            
+        promocoes = safe_load_json(PROMOCOES_FILE, DEFAULT_PROMOCOES)
+        
+        if not promocoes:
+            ctk.CTkLabel(self.frame_promocoes, text="Nenhuma promoção ativa no momento.", font=("Arial", 16), text_color="gray").pack(pady=50)
+            return
+
+        for promocao in promocoes:
+            if promocao.get("ativa", False):
+                promo_frame = ctk.CTkFrame(self.frame_promocoes, fg_color="white", corner_radius=15, border_color=ACCENT_PINK, border_width=2)
+                promo_frame.pack(fill="x", pady=10, padx=5)
+                
+                # Conteúdo
+                left_content = ctk.CTkFrame(promo_frame, fg_color="transparent")
+                left_content.pack(side="left", padx=20, pady=10)
+                
+                ctk.CTkLabel(left_content, text=f"🏷️ {promocao['nome']}", font=("Arial", 20, "bold"), text_color=ACCENT_RED).pack(anchor="w")
+                ctk.CTkLabel(left_content, text=promocao['descricao'], font=("Arial", 14), wraplength=400).pack(anchor="w")
+                ctk.CTkLabel(left_content, text=f"De R$ {promocao['preco_original']:.2f} por", font=("Arial", 12), text_color="gray").pack(anchor="w", pady=(5, 0))
+                ctk.CTkLabel(left_content, text=f"R$ {promocao['preco_promocional']:.2f}", font=("Arial", 28, "bold"), text_color=PRIMARY_PURPLE).pack(anchor="w", pady=(0, 5))
+                ctk.CTkLabel(left_content, text=f"Válido até: {promocao['validade']}", font=("Arial", 12), text_color=ACCENT_TEAL).pack(anchor="w")
+                
+                # Botão (apenas informativo, não funcional aqui sem um sistema de carrinho mais complexo)
+                botao_ver = ctk.CTkButton(promo_frame, text="Adicionar ao Pedido", 
+                                          fg_color=SECONDARY_ORANGE, text_color="white", corner_radius=10, width=180, height=40,
+                                          command=lambda p=promocao: messagebox.showinfo("Promoção", f"Para adicionar '{p['nome']}', inclua os itens correspondentes no cardápio."))
+                botao_ver.pack(side="right", padx=20)
+
+    def configurar_aba_premios(self):
+        aba = self.tabview.tab(" 🎁 Prêmios ")
+        
+        # Header com pontos
+        pontos_frame = ctk.CTkFrame(aba, fg_color=GOLDEN_YELLOW, corner_radius=15, height=120)
+        pontos_frame.pack(fill="x", padx=20, pady=20)
+        pontos_frame.pack_propagate(False)
+        
+        pontos_content = ctk.CTkFrame(pontos_frame, fg_color="transparent")
+        pontos_content.pack(expand=True, fill="both", padx=30, pady=20)
+        
+        ctk.CTkLabel(pontos_content, text="🎁 Seu Saldo de Pontos", font=("Arial", 28, "bold"), text_color=PRIMARY_PURPLE).pack(anchor="w")
+        self.rotulo_pontos = ctk.CTkLabel(pontos_content, text=f"Você tem {self.pontos_cliente} pontos!", font=("Arial", 20, "bold"), text_color="white")
+        self.rotulo_pontos.pack(anchor="w")
+
+        self.frame_premios = ctk.CTkScrollableFrame(aba, fg_color="transparent")
+        self.frame_premios.pack(fill="both", expand=True, padx=20, pady=10)
+        self.carregar_premios()
+
+    def carregar_premios(self):
+        for widget in self.frame_premios.winfo_children():
+            widget.destroy()
+            
+        premios = safe_load_json(PREMIO_FILE, DEFAULT_PREMIOS)
+        
+        if self.mesa_atual:
+            # Em uma implementação real, o cliente teria um ID associado e pontos persistentes
+            self.pontos_cliente = self.mesa_atual.get("total_gasto", 0) // 5 # Exemplo: 1 ponto a cada R$5 gastos
+            self.rotulo_pontos.configure(text=f"Você tem {int(self.pontos_cliente)} pontos!")
+        else:
+            self.rotulo_pontos.configure(text="Faça login para ver seus pontos!")
+            
+        ctk.CTkLabel(self.frame_premios, text="Catálogo de Recompensas", font=("Arial", 24, "bold"), text_color=ACCENT_BLUE).pack(pady=10)
+
+        for premio in premios:
+            if premio.get("disponivel", True):
+                premio_frame = ctk.CTkFrame(self.frame_premios, fg_color="white", corner_radius=15, border_color=ACCENT_BLUE, border_width=2)
+                premio_frame.pack(fill="x", pady=10, padx=5)
+                
+                left_content = ctk.CTkFrame(premio_frame, fg_color="transparent")
+                left_content.pack(side="left", padx=20, pady=10)
+                
+                ctk.CTkLabel(left_content, text=f"🏆 {premio['nome']}", font=("Arial", 20, "bold"), text_color=ACCENT_INDIGO).pack(anchor="w")
+                ctk.CTkLabel(left_content, text=premio['descricao'], font=("Arial", 14), wraplength=400).pack(anchor="w")
+                
+                pontos_necessarios = premio['pontos']
+                pode_resgatar = self.pontos_cliente >= pontos_necessarios and self.mesa_atual
+                
+                cor_pontos = ACCENT_GREEN if pode_resgatar else ACCENT_RED
+                
+                ctk.CTkLabel(left_content, text=f"{pontos_necessarios} pontos", font=("Arial", 24, "bold"), text_color=cor_pontos).pack(anchor="w", pady=5)
+                
+                botao_resgatar = ctk.CTkButton(premio_frame, text="Resgatar Prêmio", 
+                                               fg_color=ACCENT_INDIGO if pode_resgatar else "gray", text_color="white", 
+                                               corner_radius=10, width=180, height=40, font=("Arial", 14, "bold"),
+                                               command=lambda p=premio: self.resgatar_premio(p),
+                                               state="normal" if pode_resgatar else "disabled")
+                botao_resgatar.pack(side="right", padx=20)
+
+    def resgatar_premio(self, premio):
+        if self.mesa_atual is None:
+            messagebox.showerror("Erro", "Você precisa estar logado em uma mesa para resgatar prêmios.")
+            return
+
+        pontos_necessarios = premio['pontos']
+        if self.pontos_cliente < pontos_necessarios:
+            messagebox.showerror("Erro", "Pontos insuficientes para resgatar este prêmio.")
+            return
+
+        if premio['nome'].endswith("Grátis"):
+            if messagebox.askyesno("Confirmar Resgate", f"Deseja resgatar '{premio['nome']}' por {pontos_necessarios} pontos?"):
+                # Simula o resgate
+                self.pontos_cliente -= pontos_necessarios
+                messagebox.showinfo("Sucesso", f"Prêmio '{premio['nome']}' resgatado com sucesso! Seus novos pontos: {int(self.pontos_cliente)}")
+                self.carregar_premios() # Atualiza a exibição de pontos
+        else:
+             messagebox.showinfo("Resgate", f"Prêmio de item: '{premio['nome']}' - Resgatado! Peça ao atendente para adicioná-lo ao seu pedido.")
+             self.pontos_cliente -= pontos_necessarios
+             self.carregar_premios()
+
+    def configurar_aba_checkout(self):
+        aba = self.tabview.tab(" 💰 Checkout ")
+        
+        # Frame de Resumo do Pedido (Esquerda)
+        left_frame = ctk.CTkFrame(aba, fg_color=PANEL_BG, corner_radius=15, width=400)
+        left_frame.pack(side="left", fill="y", padx=20, pady=20)
+        left_frame.pack_propagate(False)
+        
+        ctk.CTkLabel(left_frame, text="📝 Resumo do Pedido", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE).pack(pady=15)
+        
+        self.frame_itens_pedido = ctk.CTkScrollableFrame(left_frame, fg_color="white", corner_radius=10)
+        self.frame_itens_pedido.pack(fill="both", expand=True, padx=15, pady=10)
+        
+        self.rotulo_total_pedido = ctk.CTkLabel(left_frame, text="Total: R$ 0,00", font=("Arial", 28, "bold"), text_color=ACCENT_RED)
+        self.rotulo_total_pedido.pack(pady=10)
+        
+        botao_fazer_pedido = ctk.CTkButton(left_frame, text="✅ Fazer Pedido", command=self.fazer_pedido_cliente, 
+                                           fg_color=ACCENT_GREEN, hover_color="#0D9465", text_color="white", 
+                                           corner_radius=10, height=50, font=("Arial", 18, "bold"))
+        botao_fazer_pedido.pack(pady=20, padx=15)
+        
+        # Frame de Checkout (Direita)
+        right_frame = ctk.CTkFrame(aba, fg_color="transparent")
+        right_frame.pack(side="right", fill="both", expand=True, padx=20, pady=20)
+        
+        ctk.CTkLabel(right_frame, text="💸 Fechamento da Conta", font=("Arial", 24, "bold"), text_color=SECONDARY_ORANGE).pack(pady=15)
+        
+        self.rotulo_consumo_mesa = ctk.CTkLabel(right_frame, text="Consumo da Mesa: R$ 0,00", font=("Arial", 20), text_color=ACCENT_INDIGO)
+        self.rotulo_consumo_mesa.pack(pady=10)
+        
+        ctk.CTkLabel(right_frame, text="Método de Pagamento (Avise o Atendente)", font=("Arial", 16), text_color=PRIMARY_PURPLE).pack(pady=10)
+        
+        opcoes_pagamento = ["Cartão de Crédito", "Cartão de Débito", "PIX", "Dinheiro"]
+        self.metodo_pagamento = ctk.CTkComboBox(right_frame, values=opcoes_pagamento, width=300)
+        self.metodo_pagamento.set("PIX")
+        self.metodo_pagamento.pack(pady=10)
+        
+        botao_pedir_conta = ctk.CTkButton(right_frame, text="💰 Pedir a Conta", command=self.pedir_conta_mesa, 
+                                          fg_color=SECONDARY_ORANGE, hover_color=ACCENT_RED, text_color="white", 
+                                          corner_radius=10, height=60, font=("Arial", 20, "bold"))
+        botao_pedir_conta.pack(pady=40, padx=50, fill="x")
+
+        self.atualizar_resumo_pedido()
+
+    def atualizar_resumo_pedido(self):
+        for widget in self.frame_itens_pedido.winfo_children():
+            widget.destroy()
+            
+        total = 0
+        if not self.carrinho:
+            ctk.CTkLabel(self.frame_itens_pedido, text="Carrinho vazio", font=("Arial", 14), text_color="gray").pack(pady=20)
+        
+        for idx, item in enumerate(self.carrinho):
+            total += item['preco']
+            
+            item_frame = ctk.CTkFrame(self.frame_itens_pedido, fg_color="transparent", height=40)
+            item_frame.pack(fill="x", pady=2)
+            
+            nome_label = ctk.CTkLabel(item_frame, text=f"{item['nome']}", font=("Arial", 12), text_color="black", anchor="w")
+            nome_label.pack(side="left", fill="x", expand=True)
+            
+            preco_label = ctk.CTkLabel(item_frame, text=f"R$ {item['preco']:.2f}", font=("Arial", 12, "bold"), text_color=SECONDARY_ORANGE)
+            preco_label.pack(side="right", padx=5)
+            
+            # Botão remover
+            btn_remover = ctk.CTkButton(item_frame, text="×", width=30, height=30, fg_color=RED_BUTTON, text_color="white", 
+                                        command=lambda i=idx: self.remover_do_carrinho(i), font=("Arial", 14, "bold"))
+            btn_remover.pack(side="right")
+            
+        self.rotulo_total_pedido.configure(text=f"Total: R$ {total:.2f}")
+        
+        # Atualiza o consumo da mesa
+        if self.mesa_atual:
+            self.rotulo_consumo_mesa.configure(text=f"Consumo da Mesa: R$ {self.mesa_atual.get('total_gasto', 0.0):.2f}")
+        else:
+            self.rotulo_consumo_mesa.configure(text="Consumo da Mesa: R$ 0,00 (Faça login)")
+
+    def fazer_pedido_cliente(self):
+        if not self.mesa_atual:
+            messagebox.showerror("Erro", "Faça o login na aba 'Início' para fazer um pedido.")
+            return
+
+        if not self.carrinho:
+            messagebox.showwarning("Carrinho Vazio", "Adicione itens ao carrinho antes de fazer o pedido.")
+            return
+
+        try:
+            pedidos = safe_load_json(ORDERS_FILE, [])
+            novo_id = (pedidos[-1]["id"] + 1) if pedidos else 1
+            
+            itens_nomes = [item['nome'] for item in self.carrinho]
+            total_pedido = sum(item['preco'] for item in self.carrinho)
+            
+            novo_pedido = {
+                "id": novo_id,
+                "mesa_id": self.mesa_atual["id"],
+                "itens": itens_nomes,
+                "valor": total_pedido,
+                "status": "pendente",
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            pedidos.append(novo_pedido)
+            safe_save_json(ORDERS_FILE, pedidos)
+            
+            # Atualiza o gasto da mesa (para pontuação)
+            mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+            for mesa in mesas:
+                if mesa["id"] == self.mesa_atual["id"]:
+                    mesa["orders"].append(novo_id)
+                    mesa["total_gasto"] += total_pedido
+                    self.mesa_atual["total_gasto"] = mesa["total_gasto"] # Atualiza a instância local
+                    break
+            safe_save_json(TABLES_FILE, mesas)
+
+            self.carrinho = [] # Limpa o carrinho
+            self.atualizar_resumo_pedido() # Atualiza a UI
+            messagebox.showinfo("Sucesso", f"Pedido #{novo_id} enviado! Total: R$ {total_pedido:.2f}. Aguarde a entrega.")
+
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao fazer pedido: {e}")
+
+    def pedir_conta_mesa(self):
+        if not self.mesa_atual:
+            messagebox.showerror("Erro", "Faça o login na aba 'Início' para pedir a conta.")
+            return
+
+        if messagebox.askyesno("Pedir a Conta", f"Confirma que deseja pedir a conta para a Mesa {self.mesa_atual['id']}? O atendente será notificado."):
+            # Em uma aplicação real, isso enviaria uma notificação ao painel do funcionário.
+            messagebox.showinfo("Notificação", f"Conta solicitada! Um atendente irá à Mesa {self.mesa_atual['id']} com a máquina de pagamento ({self.metodo_pagamento.get()}).")
+
+    def configurar_aba_avaliar(self):
+        aba = self.tabview.tab(" ⭐ Avaliar ")
+        
+        main_frame = ctk.CTkFrame(aba, fg_color="transparent")
+        main_frame.pack(expand=True, padx=50, pady=50)
+        
+        ctk.CTkLabel(main_frame, text="⭐ Deixe seu Feedback", font=("Arial", 36, "bold"), text_color=ACCENT_BLUE).pack(pady=20)
+        
+        # Avaliação por estrelas (Simulação)
+        ctk.CTkLabel(main_frame, text="Qual sua avaliação geral de 1 a 5 estrelas?", font=("Arial", 18), text_color=PRIMARY_PURPLE).pack(pady=10)
+        
+        self.avaliacao_var = tk.IntVar(value=5)
+        self.frame_estrelas = ctk.CTkFrame(main_frame, fg_color="transparent")
+        self.frame_estrelas.pack(pady=10)
+        
+        self.botoes_estrelas = []
+        for i in range(1, 6):
+            btn = ctk.CTkButton(self.frame_estrelas, text="★", 
+                                command=lambda val=i: self.selecionar_avaliacao(val), 
+                                fg_color="gray", hover_color=GOLDEN_YELLOW, 
+                                width=60, height=60, corner_radius=10, font=("Arial", 30, "bold"))
+            btn.grid(row=0, column=i-1, padx=5)
+            self.botoes_estrelas.append(btn)
+            
+        self.selecionar_avaliacao(5) # Define 5 estrelas como padrão
+        
+        # Campo de texto para feedback
+        ctk.CTkLabel(main_frame, text="Comentários/Sugestões:", font=("Arial", 18), text_color=PRIMARY_PURPLE).pack(pady=10)
+        self.campo_feedback = ctk.CTkTextbox(main_frame, width=600, height=200, font=("Arial", 14), corner_radius=10)
+        self.campo_feedback.pack(pady=10)
+        
+        # Botão enviar
+        botao_enviar = ctk.CTkButton(main_frame, text="📤 Enviar Avaliação", command=self.enviar_feedback, 
+                                     fg_color=ACCENT_BLUE, text_color="white", corner_radius=10, height=50, font=("Arial", 18, "bold"))
+        botao_enviar.pack(pady=20)
+
+    def selecionar_avaliacao(self, valor):
+        self.avaliacao_var.set(valor)
+        for i, btn in enumerate(self.botoes_estrelas):
+            if i < valor:
+                btn.configure(fg_color=GOLDEN_YELLOW)
+            else:
+                btn.configure(fg_color="gray")
+
+    def enviar_feedback(self):
+        if not self.mesa_atual:
+            messagebox.showerror("Erro", "Faça o login na aba 'Início' para enviar feedback.")
+            return
+
+        avaliacao = self.avaliacao_var.get()
+        comentario = self.campo_feedback.get("1.0", "end-1c").strip()
+        
+        if not comentario and avaliacao == 5:
+            if not messagebox.askyesno("Confirmar", "Deseja enviar a avaliação de 5 estrelas sem comentários?"):
+                return
+        
+        try:
+            feedbacks = safe_load_json(FEEDBACK_FILE, [])
+            novo_feedback = {
+                "mesa_id": self.mesa_atual["id"],
+                "avaliacao": avaliacao,
+                "comentario": comentario,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            feedbacks.append(novo_feedback)
+            safe_save_json(FEEDBACK_FILE, feedbacks)
+            
+            messagebox.showinfo("Sucesso", "Obrigado por seu feedback!")
+            self.campo_feedback.delete("1.0", "end")
+            self.selecionar_avaliacao(5) # Reseta para 5 estrelas
+
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao enviar feedback: {e}")
+
+    # --- Métodos Funcionais do Cliente ---
+
+    def login_cliente(self):
+        codigo = self.campo_codigo.get().strip()
+        if not codigo:
+            messagebox.showwarning("Código", "Por favor, digite o código da mesa.")
+            return
+
+        try:
+            mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+            for mesa in mesas:
+                if mesa["code"] == codigo and mesa["status"] == "ocupada":
+                    self.mesa_atual = mesa
+                    self.rotulo_mesa.configure(text=f"Mesa: {mesa['id']} (Código: {mesa['code']})")
+                    self.atualizar_info_mesa()  # Atualiza informações da mesa
+                    
+                    # Iniciar timer
+                    if self.timer_id:
+                        self.after_cancel(self.timer_id)
+                    self.atualizar_timer()
+                    
+                    messagebox.showinfo("Sucesso", f"Bem-vindo à Mesa {mesa['id']}!\nCódigo: {mesa['code']}")
+                    self.campo_codigo.delete(0, "end") # Limpa o campo
+                    self.atualizar_resumo_pedido() # Carrega o consumo da mesa
+                    self.carregar_premios() # Atualiza os pontos
+                    return
+            
+            messagebox.showerror("Erro", "Código inválido ou mesa não está ocupada.")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha no login: {e}")
+
+    def atualizar_timer(self):
+        if self.mesa_atual and self.mesa_atual["status"] == "ocupada":
+            
+            # Tempo contratado em segundos
+            tempo_contratado_segundos = self.mesa_atual.get("tempo_contratado", 120) * 60 
+            
+            # Tempo decorrido
+            start_time = self.mesa_atual.get("start_time", time.time())
+            tempo_decorrido = time.time() - start_time
+            
+            tempo_restante = max(0, tempo_contratado_segundos - tempo_decorrido)
+            
+            # Notifica 5 minutos antes de acabar
+            if tempo_restante > 0 and tempo_restante <= 300 and not hasattr(self, '_notificado'):
+                messagebox.showwarning("Atenção", "Seu tempo de jogo está terminando! Faltam menos de 5 minutos.")
+                self._notificado = True
+
+            horas = int(tempo_restante // 3600)
+            minutos = int((tempo_restante % 3600) // 60)
+            segundos = int(tempo_restante % 60)
+            
+            texto_tempo = f"Tempo: {horas:02d}:{minutos:02d}:{segundos:02d}"
+            
+            if tempo_restante <= 0:
+                texto_tempo = "Tempo: Esgotado!"
+                self.rotulo_timer.configure(text_color=ACCENT_RED)
+                if self.timer_id:
+                    self.after_cancel(self.timer_id)
+                    self.timer_id = None
+                return
+            else:
+                self.rotulo_timer.configure(text_color="white")
+
+            self.rotulo_timer.configure(text=texto_tempo)
+            self.atualizar_info_mesa()
+            self.timer_id = self.after(1000, self.atualizar_timer)
+        else:
+            self.rotulo_timer.configure(text="Tempo: 00:00:00", text_color="white")
+
+
+    # --- Área do Funcionário --- (Métodos para funcionar o botão, mas não é a principal requisição do user)
+
+    def abrir_area_funcionario(self):
+        if self.employee_frame is None:
+            self.employee_frame = ctk.CTkFrame(self, fg_color=BACKGROUND_LIGHT, corner_radius=0)
+            
+            # Header moderno
+            header_frame = ctk.CTkFrame(self.employee_frame, fg_color=ACCENT_TEAL, corner_radius=0, height=100)
+            header_frame.pack(fill="x")
+            header_frame.pack_propagate(False)
+            
+            left_header = ctk.CTkFrame(header_frame, fg_color="transparent")
+            left_header.pack(side="left", fill="both", expand=True, padx=20)
+
+            ctk.CTkLabel(left_header, text="👨‍💼", font=("Arial", 24)).pack(side="left", pady=20)
+            titulo_funcionario = ctk.CTkLabel(left_header, text="Área do Funcionário", font=("Arial", 28, "bold"), text_color="white")
+            titulo_funcionario.pack(side="left", padx=15, pady=20)
+
+            right_header = ctk.CTkFrame(header_frame, fg_color="transparent")
+            right_header.pack(side="right", padx=20, pady=20)
+            
+            botao_voltar = ctk.CTkButton(right_header, text="🏠 Voltar", command=self.voltar_ao_menu_principal, 
+                                         fg_color=RED_BUTTON, text_color="white", corner_radius=10, width=120, height=40, font=("Arial", 14, "bold"))
+            botao_voltar.pack(side="left", padx=10)
+
+            # Sistema de abas
+            self.tabview_func = ctk.CTkTabview(self.employee_frame, fg_color=BACKGROUND_LIGHT, 
+                                          segmented_button_fg_color=ACCENT_TEAL, 
+                                          segmented_button_selected_color=ACCENT_BLUE, 
+                                          segmented_button_unselected_color=ACCENT_TEAL)
+            self.tabview_func.pack(fill="both", expand=True, padx=20, pady=20)
+
+            self.tabview_func.add(" 🖥️ Gestão de Mesas ")
+            self.tabview_func.add(" 📦 Pedidos ")
+            self.tabview_func.add(" 🎮 Gerar Código ")
+
+            self.configurar_aba_gestao_mesas()
+            self.configurar_aba_pedidos()
+            self.configurar_aba_gerar_codigo()
+            
+        self.mostrar_frame(self.employee_frame)
+        self.atualizar_mesas_dados()
+        self.carregar_pedidos()
+
+    def configurar_aba_gestao_mesas(self):
+        aba = self.tabview_func.tab(" 🖥️ Gestão de Mesas ")
+        
+        # Controles superiores
+        controles_frame = ctk.CTkFrame(aba, fg_color="transparent", height=80)
+        controles_frame.pack(fill="x", padx=20, pady=10)
+        controles_frame.pack_propagate(False)
+
+        ctk.CTkLabel(controles_frame, text="🎮 Gerenciamento de Mesas", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE).pack(side="left", pady=20)
+        
+        botao_atualizar = ctk.CTkButton(controles_frame, text="🔄 Atualizar", command=self.atualizar_mesas_dados, 
+                                        fg_color=ACCENT_BLUE, text_color="white")
+        botao_atualizar.pack(side="right", padx=10, pady=20)
+        
+        # Grade de mesas
+        self.frame_mesas = ctk.CTkScrollableFrame(aba, fg_color="transparent")
+        self.frame_mesas.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        # Crie grade fixa de 20 frames (4 rows x 5 cols)
+        self.mesa_widgets = {}  # Dict: mesa_id -> dict de widgets
+        self.row_frames = []    # Para packs
+        
+        for row in range(4):  # 4 rows
+            row_frame = ctk.CTkFrame(self.frame_mesas, fg_color="transparent")
+            row_frame.pack(fill="x", pady=5)
+            self.row_frames.append(row_frame)
+            
+            for col in range(5):  # 5 cols
+                mesa_id = row * 5 + col + 1
+                frame_mesa = ctk.CTkFrame(row_frame, fg_color=ACCENT_GREEN, corner_radius=15, width=200, height=150)
+                frame_mesa.pack(side="left", padx=5, pady=5, expand=True, fill="both")
+                frame_mesa.pack_propagate(False)
+                
+                content = ctk.CTkFrame(frame_mesa, fg_color="transparent")
+                content.pack(expand=True, fill="both", padx=15, pady=15)
+                
+                # Labels fixos
+                lbl_id = ctk.CTkLabel(content, text=f"Mesa {mesa_id}", font=("Arial", 20, "bold"), text_color="white")
+                lbl_id.pack()
+                
+                lbl_console = ctk.CTkLabel(content, text="", font=("Arial", 14), text_color=GOLDEN_YELLOW)
+                lbl_console.pack()
+                
+                lbl_status = ctk.CTkLabel(content, text="Livre", font=("Arial", 16), text_color="white")
+                lbl_status.pack(pady=5)
+                
+                lbl_info = ctk.CTkLabel(content, text="", font=("Arial", 12), text_color="white")
+                lbl_info.pack(pady=2)
+                
+                btn_action = ctk.CTkButton(content, text="Ocupar", width=100, height=30, corner_radius=8)
+                btn_action.pack(pady=5)
+                
+                # Armazene referências
+                self.mesa_widgets[mesa_id] = {
+                    'frame': frame_mesa,
+                    'lbl_console': lbl_console,
+                    'lbl_status': lbl_status,
+                    'lbl_info': lbl_info,
+                    'btn_action': btn_action
+                }
+        
+        self.atualizar_mesas_dados()  # Chame inicial
+
+    def atualizar_mesas_dados(self):
+        if self.mesas_timer_id:
+            self.after_cancel(self.mesas_timer_id)
+            self.mesas_timer_id = None
+        
+        mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+        
+        for mesa_id, widgets in self.mesa_widgets.items():
+            mesa = next((m for m in mesas if m['id'] == mesa_id), None)
+            if not mesa:
+                continue
+            
+            status = mesa["status"]
+            cor = ACCENT_GREEN if status == "livre" else RED_BUTTON if status == "ocupada" else GOLDEN_YELLOW
+            widgets['frame'].configure(fg_color=cor)
+            
+            # Atualize status e timer
+            texto_status = status.capitalize()
+            texto_info = ""
+            if status == "ocupada":
+                if mesa["start_time"]:
+                    tempo_decorrido = time.time() - mesa["start_time"]
+                    tempo_restante_segundos = mesa["tempo_contratado"] * 60 - tempo_decorrido
+                    if tempo_restante_segundos > 0:
+                        mins, secs = divmod(tempo_restante_segundos, 60)
+                        hrs, mins = divmod(mins, 60)
+                        texto_status += f"\n{int(hrs):02d}:{int(mins):02d}:{int(secs):02d}"
+                        if tempo_restante_segundos < 600:
+                            cor = ACCENT_RED
+                            widgets['frame'].configure(fg_color=cor)
+                    else:
+                        texto_status += "\nTEMPO ESGOTADO"
+                        cor = ACCENT_RED
+                        widgets['frame'].configure(fg_color=cor)
+                else:
+                    texto_status += "\nS/ Tempo"
+                # Adiciona o código e tempo contratado
+                texto_info = f"Código: {mesa.get('code', 'N/A')} | Tempo Inicial: {mesa.get('tempo_contratado', 0)} min"
+            elif status == "manutencao":
+                cor = ACCENT_INDIGO
+                widgets['frame'].configure(fg_color=cor)
+                texto_status = "Manutenção"
+                texto_info = ""
+            else:
+                texto_info = ""
+            
+            widgets['lbl_status'].configure(text=texto_status, text_color="white")
+            widgets['lbl_info'].configure(text=texto_info, text_color="white")
+            widgets['lbl_console'].configure(text=mesa["console"])
+            
+            # Botão dinâmico
+            btn = widgets['btn_action']
+            if status == "ocupada":
+                btn.configure(text="Liberar", command=lambda m=mesa: self.liberar_mesa(m),
+                              fg_color="white", text_color=cor)
+            elif status == "livre":
+                btn.configure(text="Ocupar", command=lambda m=mesa: self.abrir_gerador_codigo(m),
+                              fg_color="white", text_color=cor)
+            else:
+                btn.configure(state="disabled", text="Manutenção")
+        
+        # Agenda próximo
+        if self.tabview_func.get() == " 🖥️ Gestão de Mesas ":
+            self.mesas_timer_id = self.after(5000, self.atualizar_mesas_dados)
+
+    def configurar_aba_pedidos(self):
+        aba = self.tabview_func.tab(" 📦 Pedidos ")
+        
+        ctk.CTkLabel(aba, text="📦 Gerenciamento de Pedidos", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE).pack(pady=20)
+        
+        # Filtros
+        filtros_frame = ctk.CTkFrame(aba, fg_color=PANEL_BG, corner_radius=10)
+        filtros_frame.pack(fill="x", padx=20, pady=10)
+        
+        ctk.CTkLabel(filtros_frame, text="Filtrar Status:", text_color=PRIMARY_PURPLE).pack(side="left", padx=10, pady=10)
+        self.filtro_pedidos = ctk.CTkComboBox(filtros_frame, values=["Todos", "pendente", "preparando", "entregue", "cancelado"], 
+                                              command=lambda s: self.carregar_pedidos(), width=150)
+        self.filtro_pedidos.set("pendente")
+        self.filtro_pedidos.pack(side="left", padx=10, pady=10)
+
+        # Treeview para Pedidos
+        self.arvore_pedidos = ttk.Treeview(aba, columns=("ID", "Mesa", "Itens", "Valor", "Status", "Hora"), show="headings", height=15)
+        self.arvore_pedidos.heading("ID", text="ID")
+        self.arvore_pedidos.heading("Mesa", text="Mesa")
+        self.arvore_pedidos.heading("Itens", text="Itens")
+        self.arvore_pedidos.heading("Valor", text="Valor")
+        self.arvore_pedidos.heading("Status", text="Status")
+        self.arvore_pedidos.heading("Hora", text="Hora")
+
+        self.arvore_pedidos.column("ID", width=50, anchor="center")
+        self.arvore_pedidos.column("Mesa", width=70, anchor="center")
+        self.arvore_pedidos.column("Itens", width=350)
+        self.arvore_pedidos.column("Valor", width=100, anchor="center")
+        self.arvore_pedidos.column("Status", width=120, anchor="center")
+        self.arvore_pedidos.column("Hora", width=120, anchor="center")
+        
+        self.arvore_pedidos.pack(fill="x", padx=20, pady=10)
+
+        # Botoes de Ação
+        botoes_acao_frame = ctk.CTkFrame(aba, fg_color="transparent")
+        botoes_acao_frame.pack(pady=10)
+
+        botao_preparando = ctk.CTkButton(botoes_acao_frame, text="▶️ Preparando", command=lambda: self.acao_pedido("preparando"), 
+                                         fg_color=GOLDEN_YELLOW, text_color="white", corner_radius=10, width=150)
+        botao_preparando.pack(side="left", padx=10)
+
+        botao_entregue = ctk.CTkButton(botoes_acao_frame, text="✅ Entregue", command=lambda: self.acao_pedido("entregue"), 
+                                       fg_color=ACCENT_GREEN, text_color="white", corner_radius=10, width=150)
+        botao_entregue.pack(side="left", padx=10)
+
+        botao_cancelar = ctk.CTkButton(botoes_acao_frame, text="❌ Cancelar", command=lambda: self.acao_pedido("cancelado"), 
+                                       fg_color=RED_BUTTON, text_color="white", corner_radius=10, width=150)
+        botao_cancelar.pack(side="left", padx=10)
+
+        self.carregar_pedidos()
+
+    def carregar_pedidos(self):
+        if self.pedidos_timer_id:
+            self.after_cancel(self.pedidos_timer_id)
+            self.pedidos_timer_id = None
+            
+        # Limpe apenas itens, não o treeview inteiro
+        for item in self.arvore_pedidos.get_children():
+            self.arvore_pedidos.delete(item)
+            
+        pedidos = safe_load_json(ORDERS_FILE, [])
+        status_filtrado = self.filtro_pedidos.get()
+        
+        if status_filtrado != "Todos":
+            pedidos_filtrados = [p for p in pedidos if p["status"] == status_filtrado]
+        else:
+            pedidos_filtrados = pedidos
+
+        for pedido in pedidos_filtrados:
+            cor_tag = ""
+            if pedido["status"] == "pendente":
+                cor_tag = "red"
+            elif pedido["status"] == "preparando":
+                cor_tag = "yellow"
+            elif pedido["status"] == "entregue":
+                cor_tag = "green"
+            
+            hora_formatada = pedido["timestamp"].split(" ")[1] # Pega apenas a hora
+            
+            self.arvore_pedidos.insert("", "end", values=(
+                pedido["id"],
+                pedido["mesa_id"],
+                ", ".join(pedido["itens"]),
+                f"R${pedido['valor']:.2f}",
+                pedido["status"].capitalize(),
+                hora_formatada
+            ), tags=(cor_tag,))
+
+        self.arvore_pedidos.tag_configure("red", background=PANEL_BG)
+        self.arvore_pedidos.tag_configure("yellow", background="#FFFBEB")
+        self.arvore_pedidos.tag_configure("green", background="#D1FAE5")
+
+        # Agenda próximo
+        if self.tabview_func.get() == " 📦 Pedidos ":
+            self.pedidos_timer_id = self.after(10000, self.carregar_pedidos)  # 10s
+
+    def acao_pedido(self, novo_status):
+        item_selecionado = self.arvore_pedidos.focus()
+        if not item_selecionado:
+            messagebox.showwarning("Aviso", "Selecione um pedido na lista.")
+            return
+
+        valores = self.arvore_pedidos.item(item_selecionado, "values")
+        pedido_id = int(valores[0])
+
+        if novo_status == "entregue":
+            self.finalizar_pedido(pedido_id)
+        else:
+            self.atualizar_status_pedido(pedido_id, novo_status)
+
+    def atualizar_status_pedido(self, pedido_id, novo_status):
+        try:
+            pedidos = safe_load_json(ORDERS_FILE, [])
+            for p in pedidos:
+                if p["id"] == pedido_id:
+                    p["status"] = novo_status
+                    break
+            safe_save_json(ORDERS_FILE, pedidos)
+            messagebox.showinfo("Sucesso", f"Pedido #{pedido_id} atualizado para: {novo_status.capitalize()}")
+            self.carregar_pedidos()
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao atualizar pedido: {e}")
+
+    def finalizar_pedido(self, pedido_id):
+        try:
+            pedidos = safe_load_json(ORDERS_FILE, [])
+            vendas = safe_load_json(SALES_FILE, [])
+            
+            pedido_finalizado = None
+            for p in pedidos:
+                if p["id"] == pedido_id:
+                    pedido_finalizado = p
+                    break
+            
+            if pedido_finalizado and pedido_finalizado["status"] != "entregue":
+                # Marca a venda
+                venda = {
+                    "data": datetime.now().strftime("%Y-%m-%d"),
+                    "hora": datetime.now().strftime("%H:%M:%S"),
+                    "valor": pedido_finalizado["valor"],
+                    "tipo": "comida",
+                    "descricao": f"Pedido #{pedido_id} - Mesa {pedido_finalizado['mesa_id']}"
+                }
+                vendas.append(venda)
+                safe_save_json(SALES_FILE, vendas)
+
+                # Atualiza status do pedido
+                self.atualizar_status_pedido(pedido_id, "entregue")
+                messagebox.showinfo("Sucesso", f"Pedido #{pedido_id} finalizado e adicionado às Vendas!")
+            elif pedido_finalizado and pedido_finalizado["status"] == "entregue":
+                messagebox.showwarning("Aviso", f"Pedido #{pedido_id} já foi marcado como entregue/finalizado.")
+            
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao finalizar pedido: {e}")
+
+    def configurar_aba_gerar_codigo(self):
+        aba = self.tabview_func.tab(" 🎮 Gerar Código ")
+        self.frame_gerar_codigo = ctk.CTkFrame(aba, fg_color="transparent")
+        self.frame_gerar_codigo.pack(expand=True, fill="both")
+        
+        self.abrir_gerador_codigo() # Carrega a UI na aba
+
+    def abrir_gerador_codigo(self, mesa=None):
+        # Limpa o frame
+        for widget in self.frame_gerar_codigo.winfo_children():
+            widget.destroy()
+            
+        janela = self.frame_gerar_codigo # Usar a aba como janela
+        
+        ctk.CTkLabel(janela, text="🎯 Gerar Código para Mesa", font=("Arial", 30, "bold"), text_color=PRIMARY_PURPLE).pack(pady=30)
+        
+        frame_campos = ctk.CTkFrame(janela, fg_color=PANEL_BG, corner_radius=15)
+        frame_campos.pack(padx=50, pady=20)
+        
+        # ID da Mesa
+        ctk.CTkLabel(frame_campos, text="ID da Mesa:", font=("Arial", 16)).grid(row=0, column=0, padx=15, pady=10, sticky="w")
+        
+        mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+        mesas_livres = [str(m['id']) for m in mesas if m['status'] == 'livre']
+        self.combo_mesa = ctk.CTkComboBox(frame_campos, values=mesas_livres, width=200)
+        self.combo_mesa.grid(row=0, column=1, padx=15, pady=10)
+        if mesa:
+            self.combo_mesa.set(str(mesa['id']))
+
+        # Tempo
+        ctk.CTkLabel(frame_campos, text="Tempo (minutos):", font=("Arial", 16)).grid(row=1, column=0, padx=15, pady=10, sticky="w")
+        self.campo_tempo = ctk.CTkEntry(frame_campos, width=200, placeholder_text="Ex: 60")
+        self.campo_tempo.grid(row=1, column=1, padx=15, pady=10)
+
+        # Cliente (Opcional)
+        ctk.CTkLabel(frame_campos, text="Nome do Cliente (Opcional):", font=("Arial", 16)).grid(row=2, column=0, padx=15, pady=10, sticky="w")
+        self.campo_cliente = ctk.CTkEntry(frame_campos, width=200)
+        self.campo_cliente.grid(row=2, column=1, padx=15, pady=10)
+
+        botao_gerar = ctk.CTkButton(janela, text="Gerar Código", 
+                                    command=lambda: self.ocupar_mesa_com_codigo(self.combo_mesa.get(), self.campo_tempo.get(), self.campo_cliente.get()), 
+                                    fg_color=ACCENT_BLUE, text_color="white", corner_radius=10, width=250, height=50, font=("Arial", 18, "bold"))
+        botao_gerar.pack(pady=20)
+
+    def gerar_codigo_unico(self):
+        caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        codigo = ''.join(random.choice(caracteres) for _ in range(4))
+        # Verifica se o código é único (simplesmente verificando nas mesas)
+        mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+        codigos_existentes = [m["code"] for m in mesas if m["code"] is not None]
+        while codigo in codigos_existentes:
+            codigo = ''.join(random.choice(caracteres) for _ in range(4))
+        return codigo
+
+    def ocupar_mesa_com_codigo(self, mesa_id_str, tempo_minutos_str, nome_cliente):
+        try:
+            mesa_id = int(mesa_id_str)
+            tempo_minutos = int(tempo_minutos_str)
+            
+            if tempo_minutos <= 0:
+                raise ValueError("Tempo deve ser maior que zero.")
+                
+            mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+            codigo = self.gerar_codigo_unico()
+            
+            encontrada = False
+            for m in mesas:
+                if m["id"] == mesa_id:
+                    if m["status"] == "ocupada":
+                        messagebox.showerror("Erro", f"Mesa {mesa_id} já está ocupada.")
+                        return
+                    
+                    m["status"] = "ocupada"
+                    m["code"] = codigo
+                    m["start_time"] = time.time()
+                    m["tempo_contratado"] = tempo_minutos # Guarda o tempo contratado em minutos
+                    m["time_left"] = tempo_minutos # Mantido por compatibilidade
+                    m["cliente"] = nome_cliente if nome_cliente else f"Cliente Mesa {mesa_id}"
+                    m["total_gasto"] = 0.0 # Reseta gasto
+                    m["orders"] = [] # Reseta pedidos
+                    encontrada = True
+                    break
+            
+            if not encontrada:
+                messagebox.showerror("Erro", f"Mesa {mesa_id} não encontrada.")
+                return
+
+            safe_save_json(TABLES_FILE, mesas)
+            messagebox.showinfo("Código Gerado", f"Mesa {mesa_id} ocupada!\nCódigo: {codigo}\nTempo: {tempo_minutos} minutos\nConsole: {m['console']}")
+            
+            self.atualizar_mesas_dados() # Atualiza a aba de gestão de mesas
+            self.abrir_gerador_codigo() # Limpa o formulário de geração
+            
+        except ValueError:
+            messagebox.showerror("Erro", "ID da mesa e Tempo devem ser números inteiros válidos e positivos.")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao ocupar mesa: {e}")
+
+    def liberar_mesa(self, mesa):
+        if messagebox.askyesno("Confirmar Liberação", f"Confirma a liberação da Mesa {mesa['id']}? Isso finalizará o tempo e o código de acesso."):
+            try:
+                mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+                for m in mesas:
+                    if m["id"] == mesa["id"]:
+                        m["status"] = "livre"
+                        m["code"] = None
+                        m["start_time"] = None
+                        m["time_left"] = 0
+                        m["cliente"] = None
+                        m["tempo_contratado"] = 0
+                        # O total_gasto é mantido para relatórios, não resetado
+                        break
+                safe_save_json(TABLES_FILE, mesas)
+                messagebox.showinfo("Sucesso", f"Mesa {mesa['id']} liberada com sucesso!")
+                self.atualizar_mesas_dados() # Atualiza a UI
+                
+                # Se a mesa liberada for a que o funcionário está visualizando no momento (opcional)
+                if self.mesa_selecionada and self.mesa_selecionada["id"] == mesa["id"]:
+                    self.mesa_selecionada = None
+
+            except Exception as e:
+                messagebox.showerror("Erro", f"Falha ao liberar mesa: {e}")
+
+
+    # --- Área do Admin ---
+    
+    def abrir_area_admin(self):
+        if self.admin_frame is None:
+            self.admin_frame = ctk.CTkFrame(self, fg_color=BACKGROUND_LIGHT, corner_radius=0)
+            
+            # Header moderno
+            header_frame = ctk.CTkFrame(self.admin_frame, fg_color=SECONDARY_ORANGE, corner_radius=0, height=100)
+            header_frame.pack(fill="x")
+            header_frame.pack_propagate(False)
+            
+            left_header = ctk.CTkFrame(header_frame, fg_color="transparent")
+            left_header.pack(side="left", fill="both", expand=True, padx=20)
+
+            ctk.CTkLabel(left_header, text="⚙️", font=("Arial", 24)).pack(side="left", pady=20)
+            titulo_admin = ctk.CTkLabel(left_header, text="Área de Administração", font=("Arial", 28, "bold"), text_color="white")
+            titulo_admin.pack(side="left", padx=15, pady=20)
+
+            right_header = ctk.CTkFrame(header_frame, fg_color="transparent")
+            right_header.pack(side="right", padx=20, pady=20)
+            
+            botao_voltar = ctk.CTkButton(right_header, text="🏠 Voltar", command=self.voltar_ao_menu_principal, 
+                                         fg_color=RED_BUTTON, text_color="white", corner_radius=10, width=120, height=40, font=("Arial", 14, "bold"))
+            botao_voltar.pack(side="left", padx=10)
+
+            # Sistema de abas
+            self.tabview_admin = ctk.CTkTabview(self.admin_frame, fg_color=BACKGROUND_LIGHT, 
+                                          segmented_button_fg_color=SECONDARY_ORANGE, 
+                                          segmented_button_selected_color=ACCENT_RED, 
+                                          segmented_button_unselected_color=SECONDARY_ORANGE)
+            self.tabview_admin.pack(fill="both", expand=True, padx=20, pady=20)
+
+            self.tabview_admin.add(" 📊 Dashboard ")
+            self.tabview_admin.add(" 🧑‍🤝‍🧑 Funcionários ")
+            self.tabview_admin.add(" 🍕 Cardápio/Promoções ")
+            self.tabview_admin.add(" 🎮 Jogos/Dispositivos ")
+            self.tabview_admin.add(" 💰 Financeiro ")
+            self.tabview_admin.add(" 📑 Relatórios ")
+
+            # Configurar abas
+            self.configurar_aba_dashboard()
+            self.configurar_aba_funcionarios()
+            self.configurar_aba_menu_promocoes()
+            self.configurar_aba_jogos_dispositivos()
+            self.configurar_aba_financeiro()
+            self.configurar_aba_relatorios()
+
+        self.mostrar_frame(self.admin_frame)
+        self.atualizar_dashboard()
+        self.carregar_funcionarios()
+        self.carregar_menu_admin()
+        self.carregar_dispositivos()
+        self.carregar_jogos_admin()
+
+    def criar_card_metricas(self, parent, titulo, valor, cor):
+        card = ctk.CTkFrame(parent, fg_color="white", corner_radius=15, border_color=cor, border_width=2, height=120)
+        card.pack_propagate(False)
+        
+        titulo_label = ctk.CTkLabel(card, text=titulo, font=("Arial", 14), text_color="gray").pack(pady=(15, 0))
+        valor_label = ctk.CTkLabel(card, text=valor, font=("Arial", 28, "bold"), text_color=cor).pack(pady=(0, 15))
+        return card
+
+    def configurar_aba_dashboard(self):
+        aba = self.tabview_admin.tab(" 📊 Dashboard ")
+        
+        # Frame de Métricas Principais
+        metrics_frame = ctk.CTkFrame(aba, fg_color="transparent")
+        metrics_frame.pack(fill="x", padx=20, pady=10)
+        
+        self.frame_metricas = ctk.CTkFrame(aba, fg_color="transparent")
+        self.frame_metricas.pack(fill="x", padx=20, pady=10)
+        
+        ctk.CTkButton(aba, text="Atualizar Dashboard", command=self.atualizar_dashboard, 
+                      fg_color=ACCENT_BLUE, width=200, height=40).pack(pady=20)
+
+    def atualizar_dashboard(self):
+        for widget in self.frame_metricas.winfo_children():
+            widget.destroy()
+
+        # Calcular métricas
+        vendas = safe_load_json(SALES_FILE, [])
+        total_vendas = sum(v["valor"] for v in vendas)
+        custos = safe_load_json(COSTS_FILE, DEFAULT_COSTS)
+        total_custos = sum(c["valor"] for c in custos)
+        lucro = total_vendas - total_custos
+        
+        mesas = safe_load_json(TABLES_FILE, DEFAULT_TABLES)
+        mesas_ocupadas = sum(1 for m in mesas if m["status"] == "ocupada")
+        
+        feedbacks = safe_load_json(FEEDBACK_FILE, [])
+        media_avaliacao = self.calcular_avaliacao_media()
+        
+        metrics = [
+            ("💰 Receita Total", f"R$ {total_vendas:.2f}", ACCENT_GREEN),
+            ("📉 Custos Totais", f"R$ {total_custos:.2f}", ACCENT_RED),
+            ("📈 Lucro Líquido", f"R$ {lucro:.2f}", PRIMARY_PURPLE),
+            ("👥 Funcionários", str(len(safe_load_json(EMPLOYEES_FILE, DEFAULT_EMPLOYEES))), ACCENT_BLUE),
+            ("🖥️ Mesas Ocupadas", f"{mesas_ocupadas}/20", ACCENT_TEAL),
+            ("⭐ Avaliação Média", f"{media_avaliacao:.1f}/5.0", GOLDEN_YELLOW)
+        ]
+
+        # Divide as métricas em 3 por linha
+        for i in range(0, len(metrics), 3):
+            row_frame = ctk.CTkFrame(self.frame_metricas, fg_color="transparent")
+            row_frame.pack(fill="x", pady=10, padx=20)
+            
+            for j in range(3):
+                if i + j < len(metrics):
+                    titulo, valor, cor = metrics[i + j]
+                    card = self.criar_card_metricas(row_frame, titulo, valor, cor)
+                    card.pack(side="left", fill="both", expand=True, padx=10)
+
+        # Gráfico de Vendas (Simulação)
+        grafico_frame = ctk.CTkFrame(self.frame_metricas, fg_color="white", corner_radius=15)
+        grafico_frame.pack(fill="x", padx=20, pady=20)
+        ctk.CTkLabel(grafico_frame, text="Gráfico de Vendas Últimos 7 Dias (Simulação)", font=("Arial", 18, "bold"), text_color=PRIMARY_PURPLE).pack(pady=10)
+        ctk.CTkLabel(grafico_frame, text="*Funcionalidade de gráfico exige biblioteca externa, aqui é um placeholder.*", font=("Arial", 12), text_color="gray").pack(pady=10)
+        
+    def configurar_aba_funcionarios(self):
+        aba = self.tabview_admin.tab(" 🧑‍🤝‍🧑 Funcionários ")
+        
+        ctk.CTkLabel(aba, text="🧑‍🤝‍🧑 Gestão de Funcionários", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE).pack(pady=20)
+
+        # Treeview para funcionários
+        self.arvore_funcionarios = ttk.Treeview(aba, columns=("ID", "Nome", "Cargo", "Salário", "Status"), show="headings", height=10)
+        self.arvore_funcionarios.heading("ID", text="ID")
+        self.arvore_funcionarios.heading("Nome", text="Nome")
+        self.arvore_funcionarios.heading("Cargo", text="Cargo")
+        self.arvore_funcionarios.heading("Salário", text="Salário")
+        self.arvore_funcionarios.heading("Status", text="Status")
+        
+        self.arvore_funcionarios.column("ID", width=50, anchor="center")
+        self.arvore_funcionarios.column("Nome", width=200)
+        self.arvore_funcionarios.column("Cargo", width=150, anchor="center")
+        self.arvore_funcionarios.column("Salário", width=100, anchor="center")
+        self.arvore_funcionarios.column("Status", width=100, anchor="center")
+        self.arvore_funcionarios.pack(fill="x", padx=20, pady=10)
+
+        # Botões de Ação
+        botoes_func_frame = ctk.CTkFrame(aba, fg_color="transparent")
+        botoes_func_frame.pack(pady=10)
+        
+        botao_adicionar = ctk.CTkButton(botoes_func_frame, text="➕ Adicionar Funcionário", command=self.abrir_janela_adicionar_funcionario, 
+                                        fg_color=ACCENT_GREEN, text_color="white", corner_radius=10, width=200)
+        botao_adicionar.pack(side="left", padx=10)
+        
+        botao_excluir = ctk.CTkButton(botoes_func_frame, text="🗑️ Excluir Selecionado", command=self.excluir_funcionario, 
+                                      fg_color=RED_BUTTON, text_color="white", corner_radius=10, width=200)
+        botao_excluir.pack(side="left", padx=10)
+
+        self.carregar_funcionarios()
+
+    def carregar_funcionarios(self):
+        for item in self.arvore_funcionarios.get_children():
+            self.arvore_funcionarios.delete(item)
+            
+        funcionarios = safe_load_json(EMPLOYEES_FILE, DEFAULT_EMPLOYEES)
+        
+        for func in funcionarios:
+            self.arvore_funcionarios.insert("", "end", values=(
+                func["id"],
+                func["nome"],
+                func["cargo"],
+                f"R$ {func.get('salario', 0.0):.2f}",
+                func.get("status", "ativo")
+            ))
+
+    def abrir_janela_adicionar_funcionario(self):
+        janela = ctk.CTkToplevel(self)
+        janela.title("Adicionar Funcionário")
+        janela.geometry("400x450")
+        janela.transient(self)
+        janela.grab_set()
+
+        ctk.CTkLabel(janela, text="Novo Funcionário", font=("Arial", 20, "bold")).pack(pady=20)
+
+        ctk.CTkLabel(janela, text="Nome:").pack(pady=(10, 0))
+        campo_nome = ctk.CTkEntry(janela, width=300)
+        campo_nome.pack(pady=(0, 10))
+
+        ctk.CTkLabel(janela, text="Cargo:").pack(pady=(10, 0))
+        campo_cargo = ctk.CTkComboBox(janela, values=["Gerente", "Atendente", "Técnico"], width=300)
+        campo_cargo.pack(pady=(0, 10))
+        
+        ctk.CTkLabel(janela, text="Salário:").pack(pady=(10, 0))
+        campo_salario = ctk.CTkEntry(janela, width=300, placeholder_text="Ex: 2500.00")
+        campo_salario.pack(pady=(0, 10))
+
+        ctk.CTkLabel(janela, text="Email:").pack(pady=(10, 0))
+        campo_email = ctk.CTkEntry(janela, width=300)
+        campo_email.pack(pady=(0, 10))
+
+        botao_adicionar = ctk.CTkButton(janela, text="Adicionar", 
+                                        command=lambda: self.adicionar_funcionario(janela, campo_nome.get(), campo_cargo.get(), campo_salario.get(), campo_email.get()), 
+                                        fg_color=ACCENT_GREEN)
+        botao_adicionar.pack(pady=20)
+        
+    def adicionar_funcionario(self, janela, nome, cargo, salario_str, email):
+        if not nome or not cargo or not salario_str:
+            messagebox.showerror("Erro", "Nome, Cargo e Salário são obrigatórios.")
+            return
+
+        try:
+            salario = float(salario_str)
+        except ValueError:
+            messagebox.showerror("Erro", "Salário deve ser um número válido.")
+            return
+            
+        try:
+            funcionarios = safe_load_json(EMPLOYEES_FILE, DEFAULT_EMPLOYEES)
+            novo_id = (funcionarios[-1]["id"] + 1) if funcionarios else 1
+            
+            novo_funcionario = {
+                "id": novo_id,
+                "nome": nome,
+                "email": email,
+                "cargo": cargo,
+                "data_admissao": datetime.now().strftime("%Y-%m-%d"),
+                "salario": salario,
+                "status": "ativo",
+                "telefone": "N/A" # Telefone opcional
+            }
+            
+            funcionarios.append(novo_funcionario)
+            safe_save_json(EMPLOYEES_FILE, funcionarios)
+            self.carregar_funcionarios()
+            messagebox.showinfo("Sucesso", f"Funcionário '{nome}' adicionado.")
+            janela.destroy()
+            
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao adicionar funcionário: {e}")
+
+    def excluir_funcionario(self):
+        item_selecionado = self.arvore_funcionarios.focus()
+        if not item_selecionado:
+            messagebox.showwarning("Aviso", "Selecione um funcionário para excluir.")
+            return
+
+        valores = self.arvore_funcionarios.item(item_selecionado, "values")
+        func_id = int(valores[0])
+        func_nome = valores[1]
+
+        if messagebox.askyesno("Confirmar Exclusão", f"Tem certeza que deseja excluir o funcionário '{func_nome}' (ID: {func_id})?"):
+            try:
+                funcionarios = safe_load_json(EMPLOYEES_FILE, DEFAULT_EMPLOYEES)
+                funcionarios_atualizados = [f for f in funcionarios if f["id"] != func_id]
+                
+                safe_save_json(EMPLOYEES_FILE, funcionarios_atualizados)
+                self.carregar_funcionarios()
+                messagebox.showinfo("Sucesso", f"Funcionário '{func_nome}' excluído.")
+                
+            except Exception as e:
+                messagebox.showerror("Erro", f"Falha ao excluir funcionário: {e}")
+
+    def configurar_aba_menu_promocoes(self):
+        aba = self.tabview_admin.tab(" 🍕 Cardápio/Promoções ")
+        
+        self.tabview_menu = ctk.CTkTabview(aba, fg_color="transparent")
+        self.tabview_menu.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        self.tabview_menu.add(" 🍕 Cardápio ")
+        self.tabview_menu.add(" 🔥 Promoções ")
+        self.tabview_menu.add(" 🎁 Prêmios ")
+
+        self.configurar_sub_aba_menu()
+        self.configurar_sub_aba_promocoes()
+        self.configurar_sub_aba_premios()
+
+    def configurar_sub_aba_menu(self):
+        aba = self.tabview_menu.tab(" 🍕 Cardápio ")
+        
+        ctk.CTkLabel(aba, text="🍕 Gestão do Cardápio", font=("Arial", 20, "bold"), text_color=PRIMARY_PURPLE).pack(pady=10)
+
+        # Treeview para itens do menu
+        self.arvore_menu = ttk.Treeview(aba, columns=("Nome", "Preço", "Categoria", "Destaque", "Popularidade"), show="headings", height=10)
+        self.arvore_menu.heading("Nome", text="Nome")
+        self.arvore_menu.heading("Preço", text="Preço")
+        self.arvore_menu.heading("Categoria", text="Categoria")
+        self.arvore_menu.heading("Destaque", text="Destaque")
+        self.arvore_menu.heading("Popularidade", text="Popularidade")
+        
+        self.arvore_menu.column("Nome", width=250)
+        self.arvore_menu.column("Preço", width=100, anchor="center")
+        self.arvore_menu.column("Categoria", width=150, anchor="center")
+        self.arvore_menu.column("Destaque", width=100, anchor="center")
+        self.arvore_menu.column("Popularidade", width=100, anchor="center")
+        self.arvore_menu.pack(fill="x", padx=20, pady=10)
+
+        # Botões de Ação
+        botoes_menu_frame = ctk.CTkFrame(aba, fg_color="transparent")
+        botoes_menu_frame.pack(pady=10)
+        
+        botao_adicionar_item = ctk.CTkButton(botoes_menu_frame, text="➕ Adicionar Item", command=self.abrir_janela_adicionar_item, 
+                                        fg_color=ACCENT_GREEN, text_color="white", corner_radius=10, width=180)
+        botao_adicionar_item.pack(side="left", padx=10)
+        
+        botao_excluir_item = ctk.CTkButton(botoes_menu_frame, text="🗑️ Excluir Item", command=self.excluir_item_menu, 
+                                      fg_color=RED_BUTTON, text_color="white", corner_radius=10, width=180)
+        botao_excluir_item.pack(side="left", padx=10)
+
+        self.carregar_menu_admin()
+
+    def carregar_menu_admin(self):
+        for item in self.arvore_menu.get_children():
+            self.arvore_menu.delete(item)
+            
+        menu = safe_load_json(MENU_FILE, DEFAULT_MENU)
+        
+        for item in menu:
+            self.arvore_menu.insert("", "end", values=(
+                item["nome"],
+                f"R$ {item['preco']:.2f}",
+                item.get("categoria", "Outros"),
+                "Sim" if item.get("destaque", False) else "Não",
+                item.get("popularidade", 0)
+            ))
+
+    def abrir_janela_adicionar_item(self):
+        # Implementação para adicionar/editar item (simplificada)
+        messagebox.showinfo("Ação", "Janela para Adicionar Item do Menu - Em desenvolvimento.")
+
+    def excluir_item_menu(self):
+        item_selecionado = self.arvore_menu.focus()
+        if not item_selecionado:
+            messagebox.showwarning("Aviso", "Selecione um item do menu para excluir.")
+            return
+
+        valores = self.arvore_menu.item(item_selecionado, "values")
+        nome_item = valores[0]
+
+        if messagebox.askyesno("Confirmar Exclusão", f"Tem certeza que deseja excluir o item '{nome_item}' do cardápio?"):
+            try:
+                menu = safe_load_json(MENU_FILE, DEFAULT_MENU)
+                menu_atualizado = [item for item in menu if item["nome"] != nome_item]
+                
+                safe_save_json(MENU_FILE, menu_atualizado)
+                self.carregar_menu_admin()
+                messagebox.showinfo("Sucesso", f"Item '{nome_item}' excluído.")
+                
+            except Exception as e:
+                messagebox.showerror("Erro", f"Falha ao excluir item do menu: {e}")
+
+    def configurar_sub_aba_promocoes(self):
+        aba = self.tabview_menu.tab(" 🔥 Promoções ")
+        ctk.CTkLabel(aba, text="🔥 Gestão de Promoções", font=("Arial", 20, "bold"), text_color=SECONDARY_ORANGE).pack(pady=10)
+        # Treeview e botões de ação para promoções (similar ao menu)
+        
+    def configurar_sub_aba_premios(self):
+        aba = self.tabview_menu.tab(" 🎁 Prêmios ")
+        ctk.CTkLabel(aba, text="🎁 Gestão de Prêmios", font=("Arial", 20, "bold"), text_color=GOLDEN_YELLOW).pack(pady=10)
+        # Treeview e botões de ação para prêmios (similar ao menu)
+        
+    def configurar_aba_jogos_dispositivos(self):
+        aba = self.tabview_admin.tab(" 🎮 Jogos/Dispositivos ")
+        
+        self.tabview_jogos = ctk.CTkTabview(aba, fg_color="transparent")
+        self.tabview_jogos.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        self.tabview_jogos.add(" 🎮 Jogos ")
+        self.tabview_jogos.add(" 🖥️ Dispositivos ")
+
+        self.configurar_sub_aba_jogos()
+        self.configurar_sub_aba_dispositivos()
+
+    def configurar_sub_aba_jogos(self):
+        aba = self.tabview_jogos.tab(" 🎮 Jogos ")
+        ctk.CTkLabel(aba, text="🎮 Gerenciamento de Jogos", font=("Arial", 20, "bold"), text_color=PRIMARY_PURPLE).pack(pady=10)
+
+        self.arvore_jogos = ttk.Treeview(aba, columns=("Nome", "Categoria", "Jogadas", "Popularidade"), show="headings", height=10)
+        self.arvore_jogos.heading("Nome", text="Nome")
+        self.arvore_jogos.heading("Categoria", text="Categoria")
+        self.arvore_jogos.heading("Jogadas", text="Jogadas")
+        self.arvore_jogos.heading("Popularidade", text="Popularidade")
+        
+        self.arvore_jogos.column("Nome", width=250)
+        self.arvore_jogos.column("Categoria", width=150, anchor="center")
+        self.arvore_jogos.column("Jogadas", width=100, anchor="center")
+        self.arvore_jogos.column("Popularidade", width=100, anchor="center")
+        self.arvore_jogos.pack(fill="x", padx=20, pady=10)
+        
+        self.carregar_jogos_admin()
+
+    def carregar_jogos_admin(self):
+        for item in self.arvore_jogos.get_children():
+            self.arvore_jogos.delete(item)
+            
+        jogos = safe_load_json(GAMES_FILE, DEFAULT_GAMES)
+        
+        for jogo in jogos:
+            self.arvore_jogos.insert("", "end", values=(
+                jogo["nome"],
+                jogo.get("categoria", "N/A"),
+                jogo["jogadas"],
+                jogo.get("popularidade", 0)
+            ))
+
+    def configurar_sub_aba_dispositivos(self):
+        aba = self.tabview_jogos.tab(" 🖥️ Dispositivos ")
+        ctk.CTkLabel(aba, text="🖥️ Gerenciamento de Dispositivos", font=("Arial", 20, "bold"), text_color=ACCENT_TEAL).pack(pady=10)
+
+        self.arvore_dispositivos = ttk.Treeview(aba, columns=("ID", "Tipo", "Quantidade", "Status", "Manutenção (dias)"), show="headings", height=10)
+        self.arvore_dispositivos.heading("ID", text="ID")
+        self.arvore_dispositivos.heading("Tipo", text="Tipo")
+        self.arvore_dispositivos.heading("Quantidade", text="Quantidade")
+        self.arvore_dispositivos.heading("Status", text="Status")
+        self.arvore_dispositivos.heading("Manutenção (dias)", text="Manutenção (dias)")
+        
+        self.arvore_dispositivos.column("ID", width=50, anchor="center")
+        self.arvore_dispositivos.column("Tipo", width=200)
+        self.arvore_dispositivos.column("Quantidade", width=100, anchor="center")
+        self.arvore_dispositivos.column("Status", width=100, anchor="center")
+        self.arvore_dispositivos.column("Manutenção (dias)", width=150, anchor="center")
+        self.arvore_dispositivos.pack(fill="x", padx=20, pady=10)
+        
+        self.carregar_dispositivos()
+
+    def carregar_dispositivos(self):
+        for item in self.arvore_dispositivos.get_children():
+            self.arvore_dispositivos.delete(item)
+            
+        dispositivos = safe_load_json(DEVICES_FILE, DEFAULT_DEVICES)
+        
+        for dev in dispositivos:
+            self.arvore_dispositivos.insert("", "end", values=(
+                dev["id"],
+                dev["tipo"],
+                dev["quantidade"],
+                dev["status"].capitalize(),
+                dev.get("manutencao", 0)
+            ))
+
+    def configurar_aba_financeiro(self):
+        aba = self.tabview_admin.tab(" 💰 Financeiro ")
+        ctk.CTkLabel(aba, text="💰 Gestão Financeira", font=("Arial", 24, "bold"), text_color=PRIMARY_PURPLE).pack(pady=20)
+
+        # Treeview para transações (Vendas e Custos)
+        self.arvore_transacoes = ttk.Treeview(aba, columns=("Data", "Tipo", "Categoria", "Valor", "Descrição"), show="headings", height=15)
+        self.arvore_transacoes.heading("Data", text="Data")
+        self.arvore_transacoes.heading("Tipo", text="Tipo")
+        self.arvore_transacoes.heading("Categoria", text="Categoria")
+        self.arvore_transacoes.heading("Valor", text="Valor")
+        self.arvore_transacoes.heading("Descrição", text="Descrição")
+        
+        self.arvore_transacoes.column("Data", width=100, anchor="center")
+        self.arvore_transacoes.column("Tipo", width=100, anchor="center")
+        self.arvore_transacoes.column("Categoria", width=150)
+        self.arvore_transacoes.column("Valor", width=100, anchor="center")
+        self.arvore_transacoes.column("Descrição", width=350)
+        self.arvore_transacoes.pack(fill="x", padx=20, pady=10)
+        
+        self.carregar_transacoes()
+
+    def carregar_transacoes(self):
+        for item in self.arvore_transacoes.get_children():
+            self.arvore_transacoes.delete(item)
+            
+        vendas = safe_load_json(SALES_FILE, [])
+        custos = safe_load_json(COSTS_FILE, DEFAULT_COSTS)
+        
+        transacoes = []
+        for v in vendas:
+            transacoes.append({
+                "data": v["data"],
+                "tipo": "VENDA",
+                "categoria": v.get("tipo", "N/A"),
+                "valor": v["valor"],
+                "descricao": v.get("descricao", "Venda de produto/serviço")
+            })
+            
+        for c in custos:
+            transacoes.append({
+                "data": c["data"],
+                "tipo": "CUSTO",
+                "categoria": c["categoria"],
+                "valor": -c["valor"], # Negativo para custos
+                "descricao": c["descricao"]
+            })
+            
+        # Ordena por data
+        transacoes.sort(key=lambda x: x["data"], reverse=True)
+        
+        for t in transacoes:
+            cor_tag = "green" if t["tipo"] == "VENDA" else "red"
+            self.arvore_transacoes.insert("", "end", values=(
+                t["data"],
+                t["tipo"],
+                t["categoria"],
+                f"R$ {t['valor']:.2f}",
+                t["descricao"]
+            ), tags=(cor_tag,))
+
+        self.arvore_transacoes.tag_configure("red", background="#FEE2E2")
+        self.arvore_transacoes.tag_configure("green", background="#D1FAE5")
+
+    def configurar_aba_relatorios(self):
+        aba = self.tabview_admin.tab(" 📑 Relatórios ")
+        ctk.CTkLabel(aba, text="📑 Geração de Relatórios", font=("Arial", 24, "bold"), text_color=SECONDARY_ORANGE).pack(pady=20)
+        
+        relatorios_frame = ctk.CTkFrame(aba, fg_color="transparent")
+        relatorios_frame.pack(fill="x", padx=20, pady=10)
+        
+        relatorios = [
+            ("💰 Relatório Financeiro", "Receita, custos e lucro", ACCENT_GREEN, self.gerar_relatorio_financeiro),
+            ("🎮 Relatório de Jogos", "Jogos mais jogados", ACCENT_BLUE, self.gerar_relatorio_jogos),
+            ("🍕 Relatório de Vendas", "Itens mais vendidos", SECONDARY_ORANGE, self.gerar_relatorio_vendas),
+            ("⭐ Relatório de Satisfação", "Feedbacks e avaliações", GOLDEN_YELLOW, self.gerar_relatorio_satisfacao)
+        ]
+        
+        for i, (titulo, descricao, cor, comando) in enumerate(relatorios):
+            row = i // 2
+            col = i % 2
+            
+            if col == 0:
+                row_frame = ctk.CTkFrame(relatorios_frame, fg_color="transparent")
+                row_frame.pack(fill="x", pady=10)
+                
+            card = ctk.CTkFrame(row_frame, fg_color="white", corner_radius=15, border_color=cor, border_width=2, height=120)
+            card.pack(side="left", fill="both", expand=True, padx=10)
+            card.pack_propagate(False)
+
+            content = ctk.CTkFrame(card, fg_color="transparent")
+            content.pack(expand=True, padx=15, pady=10)
+            
+            ctk.CTkLabel(content, text=titulo, font=("Arial", 18, "bold"), text_color=PRIMARY_PURPLE).pack(anchor="w")
+            ctk.CTkLabel(content, text=descricao, font=("Arial", 12), text_color="gray").pack(anchor="w")
+            
+            botao_gerar = ctk.CTkButton(content, text="Gerar", command=comando, 
+                                        fg_color=cor, text_color="white", corner_radius=8, width=100)
+            botao_gerar.pack(pady=5, anchor="w")
+
+    def gerar_relatorio_financeiro(self):
+        try:
+            vendas = safe_load_json(SALES_FILE, [])
+            custos = safe_load_json(COSTS_FILE, DEFAULT_COSTS)
+            
+            total_vendas = sum(v["valor"] for v in vendas)
+            total_custos = sum(c["valor"] for c in custos)
+            lucro = total_vendas - total_custos
+            
+            relatorio = "💰 RELATÓRIO FINANCEIRO\n\n"
+            relatorio += f"Total de Receita: R$ {total_vendas:.2f}\n"
+            relatorio += f"Total de Custos: R$ {total_custos:.2f}\n"
+            relatorio += f"Lucro Líquido: R$ {lucro:.2f}\n"
+            relatorio += f"Transações (Vendas): {len(vendas)}\n"
+            relatorio += f"Transações (Custos): {len(custos)}\n"
+            
+            messagebox.showinfo("Relatório Financeiro", relatorio)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao gerar relatório: {e}")
+
+    def gerar_relatorio_jogos(self):
+        try:
+            jogos = safe_load_json(GAMES_FILE, DEFAULT_GAMES)
+            jogos_ordenados = sorted(jogos, key=lambda x: x["jogadas"], reverse=True)
+            
+            relatorio = "🎮 JOGOS MAIS JOGADOS\n\n"
+            for jogo in jogos_ordenados:
+                relatorio += f"- {jogo['nome']} ({jogo['categoria']}): {jogo['jogadas']} jogadas\n"
+                
+            messagebox.showinfo("Relatório de Jogos", relatorio)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao gerar relatório: {e}")
+
+    def gerar_relatorio_vendas(self):
+        try:
+            pedidos = safe_load_json(ORDERS_FILE, [])
+            itens_count = {}
+            for pedido in pedidos:
+                for item in pedido["itens"]:
+                    itens_count[item] = itens_count.get(item, 0) + 1
+            
+            itens_ordenados = sorted(itens_count.items(), key=lambda x: x[1], reverse=True)[:5] # Top 5
+            
+            relatorio = "🍕 ITENS MAIS VENDIDOS\n\n"
+            for item, quantidade in itens_ordenados:
+                relatorio += f"- {item}: {quantidade} vendas\n"
+                
+            messagebox.showinfo("Relatório de Vendas", relatorio)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao gerar relatório: {e}")
+
+    def gerar_relatorio_satisfacao(self):
+        try:
+            feedbacks = safe_load_json(FEEDBACK_FILE, [])
+            if not feedbacks:
+                messagebox.showinfo("Relatório de Satisfação", "Nenhum feedback disponível.")
+                return
+                
+            avaliacoes = [fb.get("avaliacao", 5) for fb in feedbacks if fb.get("avaliacao") is not None]
+            media = sum(avaliacoes) / len(avaliacoes)
+            
+            relatorio = f"⭐ RELATÓRIO DE SATISFAÇÃO\n\n"
+            relatorio += f"Avaliação Média: {media:.1f}/5.0\n"
+            relatorio += f"Total de Feedbacks: {len(feedbacks)}\n"
+            relatorio += f"Distribuição:\n"
+            
+            for i in range(5, 0, -1):
+                count = sum(1 for a in avaliacoes if a == i)
+                percentual = (count / len(avaliacoes)) * 100
+                relatorio += f"{'★' * i}: {count} ({percentual:.1f}%)\n"
+            
+            messagebox.showinfo("Relatório de Satisfação", relatorio)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao gerar relatório: {e}")
+
+
+if __name__ == "__main__":
+    app = GameCafeApp()
+    app.mainloop()
