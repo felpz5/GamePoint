@@ -1,0 +1,167 @@
+🧩 Parte 1 – Introdução e Contexto (Rodrigo) estudar!!!!!
+
+1. Abertura (40s)
+
+“Boa tarde a todos! Nós somos Rodrigo e Felipe, e hoje queremos apresentar o P.U.P. – The Power-Up Palace, um sistema completo para gerenciamento de cafés gamers.”
+“A ideia surgiu ao percebermos que, em muitos estabelecimentos do tipo, os atendentes ainda controlam o tempo das mesas e os pedidos de forma manual, o que gera confusão, erros e perda de eficiência.”
+
+2. Identificação do Problema (40s)
+
+“Imagine um espaço gamer lotado. Cada mesa tem um console diferente, os clientes pedem comida, e os funcionários precisam anotar manualmente o tempo de jogo e os pedidos. É fácil perder o controle.”
+“Essa falta de automação gera atrasos, falhas no atendimento e até prejuízos no fechamento de caixa.”
+
+3. Solução Proposta (40s)
+
+“Foi pensando nisso que desenvolvemos o P.U.P., uma aplicação em Python feita com a biblioteca CustomTkinter, que oferece uma interface moderna e intuitiva.”
+“Nosso sistema centraliza todas as operações do Game Café — desde o controle das mesas, pedidos e clientes até a gestão administrativa com relatórios automáticos.”
+
+🎮 Parte 2 – Demonstração e Funcionalidades (Felipe)
+
+4. Interface do Cliente (1min 20s)
+
+“Aqui temos a área do cliente, pensada para ser simples e funcional. O jogador insere o código da mesa fornecido pelo atendente e já visualiza o tempo restante da sua sessão.”
+“Ele pode navegar pelo cardápio digital, adicionar produtos ao carrinho e realizar o pedido direto do sistema. Tudo é salvo automaticamente em arquivos JSON, garantindo rapidez e segurança dos dados.”
+“No fim da sessão, o cliente ainda pode deixar seu feedback, o que ajuda o administrador a entender melhor a experiência do público.”
+(Felipe mostra o funcionamento real no notebook: login, pedido, feedback.)
+
+5. Área do Funcionário (1min 30s)
+
+“Agora, passando para a área do funcionário, o atendente tem uma visão em tempo real de todas as mesas.”
+“As mesas aparecem com cores diferentes: verde para livre, vermelho para ocupada e amarelo quando há atenção necessária. Tudo é atualizado automaticamente a cada segundo.”
+“O funcionário pode gerar códigos para as mesas, definir o tempo de uso, liberar uma mesa ocupada e visualizar o que cada cliente pediu e quanto gastou.”
+“Isso elimina o uso de papéis e planilhas, tornando o atendimento muito mais eficiente.”
+(Felipe demonstra a tela de mesas e geração de código.)
+
+6. Área do Administrador (1min 30s)
+
+“Por fim, temos a área do administrador — a parte mais completa do sistema.”
+“O admin consegue visualizar relatórios de vendas semanais, comidas mais vendidas, jogos mais jogados, ganhos e custos mensais. Também pode cadastrar novos funcionários, adicionar mesas, dispositivos e até inserir novos jogos no sistema.”
+“Tudo isso com apenas alguns cliques, em uma interface leve, clara e com cores planejadas para destacar cada categoria de informação.”
+“O sistema gera uma visão completa da operação, permitindo que o dono do estabelecimento tenha controle total em tempo real.”
+
+💡 Parte 3 – Impacto, Tecnologias e Futuro (Rodrigo e Felipe)
+
+7. Impacto e Benefícios (1min – Rodrigo)
+
+“Com essa solução, conseguimos automatizar praticamente todas as tarefas manuais de um Game Café.”
+“Isso significa menos erros, mais agilidade no atendimento, aumento de produtividade e uma experiência muito mais organizada tanto para os clientes quanto para a equipe.”
+“Além disso, o sistema foi feito para ser leve e totalmente adaptável — pode ser usado em qualquer computador com Windows, sem necessidade de servidores externos.”
+
+8. Tecnologias Utilizadas (40s – Felipe)
+
+“O projeto foi desenvolvido em Python utilizando CustomTkinter para a interface, PIL para o tratamento de imagens e o sistema de arquivos JSON para o armazenamento dos dados.”
+“Optamos por essa arquitetura para garantir simplicidade, baixo custo e total portabilidade.”
+“Tudo foi estruturado em classes e funções modulares, permitindo expansão fácil — como integração com banco de dados online ou até aplicativos móveis.”
+
+9. Próximos Passos e Expansão (40s – Rodrigo)
+
+“Nosso objetivo é transformar o P.U.P. em uma plataforma mais completa, integrando um banco de dados na nuvem, painel web e aplicativo mobile.”
+“Queremos que qualquer dono de Game Café consiga usar o sistema, seja em Fortaleza, São Paulo ou fora do país, com acesso remoto e relatórios automáticos.”
+
+🚀 Parte Final – Encerramento (Felipe e Rodrigo juntos)
+
+10. Fechamento     
+
+
+🎯 Perguntas que podem fazer sobre o P.U.P. – The Power-Up Palace
+🧠 1. O que inspirou o projeto?
+
+O que querem saber: a motivação e o problema real que vocês identificaram.
+Como responder:
+
+“Percebemos que cafés gamer e lan houses têm um fluxo intenso de clientes, e o controle de tempo e pedidos ainda é feito manualmente. Queríamos automatizar isso, trazendo eficiência e uma experiência moderna tanto para o jogador quanto para o dono do negócio.”
+
+💡 2. O que há de inovador?
+
+(Você já tem essa resposta pronta — está ótima!)
+Mas pode resumir assim se o tempo for curto:
+
+“Nosso sistema é o primeiro voltado especificamente para cafés gamers, integrando gestão de mesas, cardápio digital, controle de tempo e relatórios em uma só interface leve e intuitiva.”
+
+👥 3. Qual é o público-alvo do sistema?
+
+O que querem saber: se o projeto tem aplicação real e mercado.
+Como responder:
+
+“Nosso público-alvo são donos de cafés gamers, lan houses e espaços de entretenimento que buscam automatizar o atendimento e controlar tempo, vendas e feedbacks de clientes de forma prática.”
+
+🧩 4. Como o sistema foi desenvolvido?
+
+O que querem saber: o nível técnico de vocês.
+Como responder:
+
+“Foi desenvolvido em Python, com CustomTkinter para interface gráfica, PIL para tratamento de imagens e arquivos JSON para armazenamento de dados. A arquitetura modular facilita futuras expansões, como integração com banco de dados e aplicativos móveis.”
+
+⚙️ 5. Por que escolheram Python e CustomTkinter?
+
+O que querem saber: se a escolha da linguagem foi consciente.
+Como responder:
+
+“Escolhemos Python por ser uma linguagem acessível, poderosa e com bibliotecas modernas. O CustomTkinter nos deu liberdade de criar uma interface bonita, responsiva e leve — algo difícil de conseguir com Tkinter puro.”
+
+📊 6. O sistema funciona offline ou depende de internet?
+
+O que querem saber: a viabilidade prática.
+Como responder:
+
+“Funciona 100% offline. Isso é ideal para cafés gamers, que nem sempre têm rede estável. Mas planejamos integrar uma versão online com backup em nuvem futuramente.”
+
+💵 7. Como vocês imaginam monetizar ou escalar o projeto?
+
+O que querem saber: se o projeto pode virar um produto.
+Como responder:
+
+“Planejamos oferecer o sistema como licença de uso para pequenos estabelecimentos, com planos mensais. Também estudamos uma versão web ou mobile para facilitar a gestão remota.”
+
+🔍 8. Como vocês validaram o sistema?
+
+O que querem saber: se foi testado com usuários reais.
+Como responder:
+
+“Testamos com usuários simulados — clientes e atendentes — para verificar fluxo, usabilidade e confiabilidade. Também planejamos levar uma versão funcional para teste em cafés locais após o evento.”
+
+🧠 9. Quais foram os principais desafios técnicos?
+
+O que querem saber: se vocês dominam a parte técnica.
+Como responder:
+
+“O principal desafio foi integrar várias áreas — cliente, funcionário e admin — em um sistema único, sem travar a performance. Também otimizamos o carregamento das imagens e a atualização do tempo em tempo real.”
+
+🚀 10. Quais são os próximos passos do projeto?
+
+O que querem saber: se há continuidade.
+Como responder:
+
+“Pretendemos adicionar banco de dados online, integração mobile, e transformar o sistema em uma plataforma SaaS, permitindo que qualquer Game Café use e personalize o P.U.P. de acordo com suas necessidades.”
+
+🧍‍♂️ 11. Como vocês dividiram as tarefas na equipe?
+
+O que querem saber: organização e trabalho em equipe.
+Como responder:
+
+“Rodrigo ficou responsável pela parte de documentação, pesquisa de usabilidade e apresentação. Felipe cuidou da estrutura de código, design da interface e integração das funcionalidades. As decisões principais foram feitas juntos.”
+
+🔒 12. O sistema é seguro?
+
+O que querem saber: se pensaram na proteção dos dados.
+Como responder:
+
+“Sim. Como ele roda localmente, os dados não trafegam pela internet. Ainda assim, planejamos incluir criptografia básica e backups automáticos na próxima versão.”
+
+🧰 13. Quais tecnologias ou ferramentas vocês pretendem integrar no futuro?
+
+Como responder:
+
+“Planejamos usar SQLite ou Firebase para banco de dados, e talvez criar uma API web com Flask ou FastAPI. No front-end, podemos expandir para uma versão mobile em Kivy ou Flutter.”
+
+🧩 14. Em que cenário o sistema falharia e como pretendem resolver?
+
+Como responder:
+
+“Se o arquivo JSON for corrompido ou apagado, o sistema recria os dados automaticamente com valores padrão. Isso garante que o programa nunca pare de funcionar.”
+
+🧠 15. O que vocês aprenderam com o projeto?
+
+Como responder:
+
+“Aprendemos a importância de planejar a arquitetura antes de codar, e como pensar em experiência do usuário é essencial — não basta o código funcionar, ele precisa ser fácil e agradável de usar.”
